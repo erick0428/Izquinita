@@ -1,0 +1,17 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+access_tindahan_sequence,tindahan.sequence,model_tindahan_sequence,base.group_user,1,1,1,1
+access_tindahan_employee,tindahan.employee,model_tindahan_employee,base.group_user,1,1,1,1
+access_tindahan_category,tindahan.category,model_tindahan_category,base.group_user,1,1,1,1
+access_tindahan_item_model,tindahan.item_model,model_tindahan_item_model,base.group_user,1,1,1,1
+access_tindahan_expenses,tindahan.expenses,model_tindahan_expenses,base.group_user,1,1,1,1
+access_tindahan_expenses_item,tindahan.expenses_item,model_tindahan_expenses_item,base.group_user,1,1,1,1
+access_tindahan_attendance,tindahan.attendance,model_tindahan_attendance,base.group_user,1,1,1,1
+access_tindahan_attendance_item,tindahan.attendance_item,model_tindahan_attendance_item,base.group_user,1,1,1,1
+access_tindahan_sales,tindahan.sales,model_tindahan_sales,base.group_user,1,1,1,1
+
+access_tindahan_business_performance_summary,tindahan.business_performance_summary,model_tindahan_business_performance_summary,base.group_user,1,1,1,1
+access_tindahan_business_performance_summary_line,tindahan.business_performance_summary_line,model_tindahan_business_performance_summary_line,base.group_user,1,1,1,1
+
+access_tindahan_wages_summary,tindahan.wages_summary,model_tindahan_wages_summary,base.group_user,1,1,1,1
+access_tindahan_wages_summary_line,tindahan.wages_summary_line,model_tindahan_wages_summary_line,base.group_user,1,1,1,1

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+	<record id="view_wages_summary" model="ir.ui.view">
+		<field name="name">wages_summary.form</field>
+		<field name="model">tindahan.wages_summary</field>
+		<field name="arch" type="xml">
+
+			<form create="false" delete ="false" >
+				<!-- <header>
+                    <button name="action_export_xls"
+                            string="Export XLS"
+                            type="object"
+                            class="btn-primary"/>
+                </header> -->
+            	<sheet>
+                	<group col="5">
+                    	<group>
+                        	<field name="start_date"  />
+                    	</group>
+                    	<group>
+                        	<field name="date_end" />
+                    	</group>
+                    	<group>
+                        	<field name="employee_id" />
+                    	</group>
+                
+					
+						<group>
+							<group>
+                        		<button name="action_submit" string="Load" class="btn btn-primary" type="object"/>
+                    		</group>
+						
+						</group>
+                    							
+                	</group>
+					<group>
+						<field name="wages_summary_ids" string = "">
+							<list
+								create="false"
+								edit="false"
+								delete="false"
+								decoration-bf="is_employee_total"
+							>
+								<field name="display_name" string="Employee"/>
+								<field name="date"/>
+								<field name="amount_paid"/>
+								<field name="amount_not_paid"/>
+								<field name="salary_amount"/>
+								<field name="total_amount"/>
+
+								<field name="is_employee_total" column_invisible="1"/>
+								<!-- <field name="is_grand_total" column_invisible="1"/> -->
+							</list>
+						</field>
+
+
+                	</group>
+					
+
+            	</sheet>
+        	</form>
+
+		</field>
+	</record>
+
+
+	<record id="action_wages_summary" model="ir.actions.act_window">
+    	<field name="name">Wages Summary</field>
+    	<field name="res_model">tindahan.wages_summary</field>
+    	<field name="view_mode">form</field>
+    	<field name="view_id" ref="view_wages_summary"/>
+	</record>
+
+	
+</odoo>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Top-level menu -->
+        <menuitem name="Izquinita" id="menu_tindahan" action="action_employee"
+            sequence="-90" />
+    </data>
+
+    <menuitem id="menu_employee" name="Employee" sequence="10" parent="menu_tindahan"
+        action="action_employee" />
+    <menuitem id="menu_category" name="Category" sequence="20" parent="menu_tindahan"
+        action="action_category" />
+    <menuitem id="menu_item_model" name="Item Model" sequence="30" parent="menu_tindahan"
+        action="action_item_model" />
+    <menuitem id="menu_expenses" name="Expenses" sequence="40" parent="menu_tindahan"
+        action="action_expenses" />
+    <menuitem id="menu_sales" name="Sales" sequence="50" parent="menu_tindahan"
+        action="action_sales" />
+    <menuitem id="menu_attendance" name="Attendance" sequence="60" parent="menu_tindahan"
+        action="action_attendance" />
+    <menuitem id="menu_business_performance_summary" name="Business Performance Summary" sequence="70" parent="menu_tindahan"
+        action="action_business_performance_summary" />
+
+    <menuitem id="menu_wages_summary" name="Wages Summary" sequence="80" parent="menu_tindahan"
+        action="action_wages_summary" />
+   
+    
+
+</odoo>

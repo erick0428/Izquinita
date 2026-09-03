@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Action -->
+    <record id="action_attendance" model="ir.actions.act_window">
+        <field name="name">Attendance</field>
+        <field name="res_model">tindahan.attendance</field>
+        <field name="view_mode">list,form</field> <!-- 'tree' changed to 'list' -->
+    </record>
+
+    <!-- List View -->
+    <record id="view_attendance_list" model="ir.ui.view">
+        <field name="name">attendance.list</field>
+        <field name="model">tindahan.attendance</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="date"/>
+                <field name="remarks"/>
+                
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_attendance_form" model="ir.ui.view">
+        <field name="name">attendance.form</field>
+        <field name="model">tindahan.attendance</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name" readonly= "true"/>
+                        <field name="date"/>
+                        <field name="remarks"/>
+                        
+					</group>
+                    <notebook>
+                        <page string="Item List">
+                            <group>
+                                <field name="attendance_item_ids" string="" >
+                                    <list editable="bottom">
+                                        <field name="employee_id"  />
+                                        <field name="amount" sum="Totals" />
+                                        <field name="status" />
+                                  
+                                            
+                                    </list>
+                                </field>
+                            </group>
+                        </page>
+                    </notebook>							         
+           
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

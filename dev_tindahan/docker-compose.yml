@@ -1,0 +1,28 @@
+services:
+  odoo:
+    build:
+      context: ./odoo    
+    container_name: tindahan_odoo
+    restart: unless-stopped    
+    ports:
+      - 8069:8069
+    depends_on:
+      - pgdb
+    volumes:
+      - ./odoo/config:/etc/odoo
+      - ./addons:/mnt/extra-addons
+      - odoo-data:/var/lib/odoo
+  pgdb:
+    image: postgres:14
+    container_name: tindahan_pgdb
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=${ODOO_DB_NAME:-postgres}
+      - POSTGRES_USER=${ODOO_DB_USER:-odoo}
+      - POSTGRES_PASSWORD=${ODOO_DB_PASSWD:-odoo}
+      - PGDATA=/var/lib/postgresql/data/pgdata  
+    volumes:
+      - pgdb-data:/var/lib/postgresql/data/pgdata
+volumes:
+  odoo-data:
+  pgdb-data:

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Top-level menu -->
+        <menuitem name="Izquinita POS" id="menu_tindahan_pos" action="action_product"
+            sequence="-90" />
+    </data>
+
+    <menuitem id="menu_product" name="Product" sequence="10" parent="menu_tindahan_pos"
+        action="action_product" />
+
+    <menuitem id="menu_variant" name="Variant" sequence="20" parent="menu_tindahan_pos"
+        action="action_variant" />
+
+   
+    
+
+</odoo>

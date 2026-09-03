@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Action -->
+    <record id="action_employee" model="ir.actions.act_window">
+        <field name="name">Employee</field>
+        <field name="res_model">tindahan.employee</field>
+        <field name="view_mode">list,form</field> <!-- 'tree' changed to 'list' -->
+    </record>
+
+    <!-- List View -->
+    <record id="view_employee_list" model="ir.ui.view">
+        <field name="name">employee.list</field>
+        <field name="model">tindahan.employee</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="rate"/>
+                <field name="address" />
+				<!-- <field name="phone_number" /> -->
+				<field name="mobile_number" />
+				<field name="email" />
+               
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_employee_form" model="ir.ui.view">
+        <field name="name">employee.form</field>
+        <field name="model">tindahan.employee</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name" />
+                        <field name="rate"/>
+                        <field name="address" />
+                        <!-- <field name="phone_number" /> -->
+                        
+					</group>
+					<group>
+						<field name="mobile_number" />
+						<field name="email" />
+						
+					</group>                  
+           
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

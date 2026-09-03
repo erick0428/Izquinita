@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="s_1" model="tindahan.sequence">
+        <field name="name">Expenses</field>
+        <field name="count">0</field>
+        <field name="year">25</field>
+    </record>
+   <record id="s_2" model="tindahan.sequence">
+        <field name="name">Sales</field>
+        <field name="count">0</field>
+        <field name="year">25</field>
+    </record>
+
+    <record id="s_3" model="tindahan.sequence">
+        <field name="name">Attendance</field>
+        <field name="count">0</field>
+        <field name="year">25</field>
+    </record>
+     <!--<record id="s_4" model="tindahan.sequence">
+        <field name="name">Pcount</field>
+        <field name="count">0</field>
+        <field name="year">25</field>
+    </record>
+    <record id="s_5" model="tindahan.sequence">
+        <field name="name">Return Order</field>
+        <field name="count">0</field>
+        <field name="year">25</field>
+    </record> -->
+
+  
+</odoo>

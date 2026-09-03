@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+	<record id="view_business_performance_summary" model="ir.ui.view">
+		<field name="name">business_performance_summary.form</field>
+		<field name="model">tindahan.business_performance_summary</field>
+		<field name="arch" type="xml">
+
+			<form create="false" delete ="false" >
+				<!-- <header>
+                    <button name="action_export_xls"
+                            string="Export XLS"
+                            type="object"
+                            class="btn-primary"/>
+                </header> -->
+            	<sheet>
+                	<group col="5">
+                    	<group>
+                        	<field name="start_date"  />
+                    	</group>
+                    	<group>
+                        	<field name="date_end" />
+                    	</group>
+                
+					
+						<group>
+							<group>
+                        		<button name="action_submit" string="Load" class="btn btn-primary" type="object"/>
+                    		</group>
+						
+						</group>
+                    							
+                	</group>
+					<group>
+                    	<field name = "business_performance_summary_ids" readonly="1" force_save="1" string ="">
+                        	<list editable="bottom">
+              
+                            	<field name="date"/>
+                            	<field name="sales_amount"/>
+								<field name="expenses_amount"/>
+								<field name="salary_amount"/>
+								<field name="total_amount"/>
+					
+                        	</list>
+                    	</field>
+                	</group>
+					
+
+            	</sheet>
+        	</form>
+
+		</field>
+	</record>
+
+
+	<record id="action_business_performance_summary" model="ir.actions.act_window">
+    	<field name="name">Business Performance Summary</field>
+    	<field name="res_model">tindahan.business_performance_summary</field>
+    	<field name="view_mode">form</field>
+    	<field name="view_id" ref="view_business_performance_summary"/>
+	</record>
+
+	
+</odoo>

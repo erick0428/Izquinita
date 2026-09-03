@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Action -->
+    <record id="action_expenses" model="ir.actions.act_window">
+        <field name="name">Expenses</field>
+        <field name="res_model">tindahan.expenses</field>
+        <field name="view_mode">list,form</field> <!-- 'tree' changed to 'list' -->
+    </record>
+
+    <!-- List View -->
+    <record id="view_expenses_list" model="ir.ui.view">
+        <field name="name">expenses.list</field>
+        <field name="model">tindahan.expenses</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="date"/>
+                <field name="remarks"/>
+                
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_expenses_form" model="ir.ui.view">
+        <field name="name">expenses.form</field>
+        <field name="model">tindahan.expenses</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name" readonly= "true"/>
+                        <field name="date"/>
+                        <field name="remarks"/>
+                        
+					</group>
+                    <notebook>
+                        <page string="Item List">
+                            <group>
+                                <field name="expenses_item_ids" string="" >
+                                    <list editable="bottom">
+                                        <field name="item_model_id"  />
+                                        <field name="amount" sum="Totals" />
+                                  
+                                            
+                                    </list>
+                                </field>
+                            </group>
+                        </page>
+                    </notebook>							         
+           
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>
