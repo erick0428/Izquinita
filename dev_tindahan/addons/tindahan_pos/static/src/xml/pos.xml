@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<templates xml:space="preserve">
+
+    <t t-name="tindahan_pos.POSScreen">
+
+        <div class="tindahan-pos">
+
+            <!-- ================================================= -->
+            <!-- LEFT SIDE -->
+            <!-- ================================================= -->
+
+            <div class="pos-products">
+
+                <div class="pos-header">
+
+                    <h1>Products</h1>
+
+                </div>
+
+
+                <!-- VARIANTS -->
+
+                <div class="variant-container">
+
+                    <t t-foreach="state.variants"
+                       t-as="variant"
+                       t-key="variant.id">
+
+                        <div class="variant-section">
+
+                            <h2 t-esc="variant.name"/>
+
+
+                            <!-- PRODUCTS -->
+
+                            <div class="product-grid">
+
+                                <t t-foreach="variant.products"
+                                   t-as="product"
+                                   t-key="product.id">
+
+                                    <button
+                                        class="product-card"
+                                        t-on-click="() => this.addProduct(product)">
+
+                                        <div class="product-name"
+                                             t-esc="product.name"/>
+
+                                        <div class="product-price">
+
+                                            <t t-esc="
+                                                this.formatPrice(product.srp)
+                                            "/>
+
+                                        </div>
+
+                                    </button>
+
+                                </t>
+
+                            </div>
+
+                        </div>
+
+                    </t>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================================================= -->
+            <!-- RIGHT SIDE -->
+            <!-- ================================================= -->
+
+            <div class="pos-order">
+
+                <div class="order-header">
+
+                    <h1>Current Order</h1>
+
+                </div>
+
+
+                <!-- CART -->
+
+                <div class="cart">
+
+                    <t t-if="state.cart.length">
+
+                        <t t-foreach="state.cart"
+                           t-as="line"
+                           t-key="line.product_id">
+
+                            <div class="cart-line">
+
+                                <div class="cart-product">
+
+                                    <div class="cart-name"
+                                         t-esc="line.name"/>
+
+                                    <div class="cart-price">
+
+                                        <t t-esc="
+                                            this.formatPrice(line.price)
+                                        "/>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- QUANTITY -->
+
+                                <div class="quantity-controls">
+
+                                    <button
+                                        class="quantity-button"
+                                        t-on-click="
+                                            () => this.decreaseQuantity(line)
+                                        ">
+                                        −
+                                    </button>
+
+
+                                    <span t-esc="line.quantity"/>
+
+
+                                    <button
+                                        class="quantity-button"
+                                        t-on-click="
+                                            () => this.increaseQuantity(line)
+                                        ">
+                                        +
+                                    </button>
+
+                                </div>
+
+
+                                <!-- SUBTOTAL -->
+
+                                <div class="line-subtotal">
+
+                                    <t t-esc="
+                                        this.formatPrice(
+                                            line.price * line.quantity
+                                        )
+                                    "/>
+
+                                </div>
+
+
+                                <!-- REMOVE -->
+
+                                <button
+                                    class="remove-button"
+                                    t-on-click="
+                                        () => this.removeProduct(line)
+                                    ">
+                                    ×
+                                </button>
+
+                            </div>
+
+                        </t>
+
+                    </t>
+
+
+                    <!-- EMPTY CART -->
+
+                    <t t-else="">
+
+                        <div class="empty-cart">
+
+                            <h3>No products</h3>
+
+                            <p>
+                                Select a product to add it
+                                to the order.
+                            </p>
+
+                        </div>
+
+                    </t>
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- TOTAL -->
+                <!-- ================================================= -->
+
+                <div class="order-footer">
+
+                    <div class="total-row">
+
+                        <span>Total</span>
+
+                        <strong>
+                            <t t-esc="
+                                this.formatPrice(state.total)
+                            "/>
+                        </strong>
+
+                    </div>
+
+
+                    <div class="order-actions">
+
+                        <button
+                            class="clear-button"
+                            t-on-click="clearCart">
+
+                            CLEAR
+
+                        </button>
+
+
+                        <button
+                            class="pay-button"
+                            t-on-click="saveOrder">
+
+                            SAVE ORDER
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </t>
+
+</templates>

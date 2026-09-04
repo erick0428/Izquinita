@@ -13,6 +13,9 @@
     <menuitem id="menu_variant" name="Variant" sequence="20" parent="menu_tindahan_pos"
         action="action_variant" />
 
+    <menuitem id="menu_pos" name="POS" sequence="30" parent="menu_tindahan_pos"
+        action="action_pos_screen" />
+
    
     
 

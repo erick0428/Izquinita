@@ -20,11 +20,20 @@
 
         'views/variant.xml',
         'views/product.xml',
+        'views/pos.xml',
+        
         'views/views.xml',
-        'views/templates.xml',
+        # 'views/templates.xml',
         'views/menu.xml',
     ],
-
+    "assets": {
+        "web.assets_backend": [
+            "tindahan_pos/static/src/js/pos.js",
+            "tindahan_pos/static/src/xml/pos.xml",
+            "tindahan_pos/static/src/css/pos.css",
+           
+        ],
+    },
     'demo': [
         'demo/demo.xml',
     ],
