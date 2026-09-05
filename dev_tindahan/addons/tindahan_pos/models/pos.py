@@ -1,5 +1,7 @@
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
+from psycopg2 import OperationalError
+import time
 
 
 class POS(models.Model):
@@ -33,7 +35,15 @@ class POS(models.Model):
                 line.subtotal
                 for line in record.line_ids
             )
-
+    @api.model_create_multi
+    def create(self, vals_list):
+        for attempt in range(3):
+            try:
+                return super().create(vals_list)
+            except OperationalError:
+                if attempt == 2:
+                    raise
+                time.sleep(0.2) 
 
 class POSLine(models.Model):
     _name = 'tindahan_pos.pos.line'
@@ -90,3 +100,5 @@ class POSLine(models.Model):
                 raise ValidationError(
                     'Quantity must be greater than zero.'
                 )
+                
+                               

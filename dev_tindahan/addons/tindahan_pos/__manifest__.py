@@ -9,7 +9,7 @@
     'website': 'https://www.yourcompany.com',
     'category': 'Uncategorized',
     'version': '18.0.1.0.0',
-
+    'license': 'LGPL-3',
     'depends': [
         'base',
         'mail',
@@ -23,7 +23,7 @@
         'views/pos.xml',
         
         'views/views.xml',
-        # 'views/templates.xml',
+        'views/templates.xml',
         'views/menu.xml',
     ],
     "assets": {

@@ -13,55 +13,68 @@
             <div class="pos-products">
 
                 <div class="pos-header">
-
                     <h1>Products</h1>
+                </div>
+
+                <!-- SEARCH -->
+                <div class="pos-search">
+                    <input
+                        type="text"
+                        placeholder="🔎 Search product..."
+                        t-model="state.search"
+                    />
+                </div>
+
+                <!-- CATEGORY TABS -->
+                <div class="category-tabs">
+
+                    <t t-foreach="state.variants"
+                    t-as="variant"
+                    t-key="variant.id">
+
+                        <button
+                            t-att-class="{
+                                'tab-button': true,
+                                'active': state.activeVariant === variant.id
+                            }"
+                            t-on-click="() => this.state.activeVariant = variant.id"
+                        >
+                            <t t-esc="variant.name"/>
+                        </button>
+
+                    </t>
 
                 </div>
 
+                <!-- ACTIVE PRODUCTS -->
+                <t t-set="active"
+                t-value="state.variants.find(v => v.id === state.activeVariant)"/>
 
-                <!-- VARIANTS -->
+                <div class="product-grid">
 
-                <div class="variant-container">
+                    <t t-if="active">
 
-                    <t t-foreach="state.variants"
-                       t-as="variant"
-                       t-key="variant.id">
+                        <t t-foreach="active.products.filter(p =>
+                            !state.search ||
+                            p.name.toLowerCase().includes(state.search.toLowerCase())
+                        )"
+                        t-as="product"
+                        t-key="product.id">
 
-                        <div class="variant-section">
+                            <button
+                                class="product-card"
+                                t-on-click="() => this.addProduct(product)">
 
-                            <h2 t-esc="variant.name"/>
+                                <div class="product-name"
+                                    t-esc="product.name"/>
 
+                                <div class="product-price">
+                                    <t t-esc="this.formatPrice(product.srp)"/>
+                                </div>
 
-                            <!-- PRODUCTS -->
+                            </button>
 
-                            <div class="product-grid">
-
-                                <t t-foreach="variant.products"
-                                   t-as="product"
-                                   t-key="product.id">
-
-                                    <button
-                                        class="product-card"
-                                        t-on-click="() => this.addProduct(product)">
-
-                                        <div class="product-name"
-                                             t-esc="product.name"/>
-
-                                        <div class="product-price">
-
-                                            <t t-esc="
-                                                this.formatPrice(product.srp)
-                                            "/>
-
-                                        </div>
-
-                                    </button>
-
-                                </t>
-
-                            </div>
-
-                        </div>
+                        </t>
 
                     </t>
 
@@ -194,36 +207,65 @@
 
                 <div class="order-footer">
 
-                    <div class="total-row">
+                    <div class="summary-row">
 
-                        <span>Total</span>
+                        <!-- TOTAL -->
+                        <div class="total-row">
+                            <span>Total</span>
+                            <strong>
+                                <t t-esc="this.formatPrice(state.total)"/>
+                            </strong>
+                        </div>
 
-                        <strong>
-                            <t t-esc="
-                                this.formatPrice(state.total)
-                            "/>
-                        </strong>
+                        <!-- CASH -->
+                        <div class="payment-row">
+                            <span>Cash</span>
+                            <strong>
+                                <t t-esc="this.formatPrice(state.cash || 0)"/>
+                            </strong>
+                        </div>
+
+                        <!-- CHANGE -->
+                        <div class="payment-row change">
+                            <span>Change</span>
+                            <strong>
+                                <t t-esc="this.formatPrice(state.change)"/>
+                            </strong>
+                        </div>
 
                     </div>
 
+                    <!-- KEYPAD -->
+                    <div class="keypad">
 
+                        <t t-foreach="['7','8','9','4','5','6','1','2','3','0','.','⌫']"
+                        t-as="key"
+                        t-key="key">
+
+                            <button
+                                class="key"
+                                t-on-click="() => this.pressKey(key)">
+                                <t t-esc="key"/>
+                            </button>
+
+                        </t>
+
+                    </div>
+
+                    <!-- ACTIONS -->
                     <div class="order-actions">
 
                         <button
                             class="clear-button"
-                            t-on-click="clearCart">
-
+                            t-on-click="() => this.clearCart()">
                             CLEAR
-
                         </button>
 
 
                         <button
                             class="pay-button"
-                            t-on-click="saveOrder">
-
-                            SAVE ORDER
-
+                            t-on-click="() => this.payOrder()">
+                            PAY
                         </button>
 
                     </div>
