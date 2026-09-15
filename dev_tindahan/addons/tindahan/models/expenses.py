@@ -10,7 +10,7 @@ _logger = logging.getLogger(__name__)
 class Expenses(models.Model):
     _name = 'tindahan.expenses'
     _description = 'Expenses'
-    _order = "name"
+    _order = "date desc"
     _sql_constraints = [
         (
             "order_name_unique",

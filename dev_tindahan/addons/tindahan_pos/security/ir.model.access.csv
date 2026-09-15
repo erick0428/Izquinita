@@ -1,6 +1,8 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 
+access_tindahan_pos_sequence,tindahan_pos.sequence,model_tindahan_pos_sequence,base.group_user,1,1,1,1
 access_tindahan_pos_variant,tindahan_pos.variant,model_tindahan_pos_variant,base.group_user,1,1,1,1
 access_tindahan_pos_product,tindahan_pos.product,model_tindahan_pos_product,base.group_user,1,1,1,1
 access_tindahan_pos_pos,tindahan_pos.pos,model_tindahan_pos_pos,base.group_user,1,1,1,1
 access_tindahan_pos_pos_line,tindahan_pos.pos.line,model_tindahan_pos_pos_line,base.group_user,1,1,1,1
+access_tindahan_pos_session,tindahan_pos.session,model_tindahan_pos_session,base.group_user,1,1,1,1

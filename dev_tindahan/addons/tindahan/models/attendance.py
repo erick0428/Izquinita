@@ -10,7 +10,7 @@ _logger = logging.getLogger(__name__)
 class Attendance(models.Model):
     _name = 'tindahan.attendance'
     _description = 'Attendance'
-    _order = "name"
+    _order = "date desc"
     _sql_constraints = [
         (
             "order_name_unique",

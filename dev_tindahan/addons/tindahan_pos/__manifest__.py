@@ -16,15 +16,17 @@
     ],
 
     'data': [
-        'security/ir.model.access.csv',
-
-        'views/variant.xml',
-        'views/product.xml',
-        'views/pos.xml',
         
+        'security/ir.model.access.csv',
+        
+        'views/product.xml',
+        'views/variant.xml',        
+        'views/pos.xml',
+        'views/menu.xml',
+                
         'views/views.xml',
         'views/templates.xml',
-        'views/menu.xml',
+ 
     ],
     "assets": {
         "web.assets_backend": [

@@ -8,7 +8,7 @@ import logging
 class Sales(models.Model):
     _name = 'tindahan.sales'
     _description = 'Sales'
-    _order = "name"
+    _order = "date desc"
     _sql_constraints = [
         (
             "order_name_unique",

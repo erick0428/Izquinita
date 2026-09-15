@@ -92,7 +92,28 @@
                 <div class="order-header">
 
                     <h1>Current Order</h1>
+                    <div class="session-bar">
 
+                        <t t-if="!state.session">
+                            <button t-on-click="openSession">OPEN POS</button>
+                        </t>
+
+                        <t t-else="">
+                            <span>Session: <t t-esc="state.session.name"/></span>
+                            <button t-on-click="closeSession">CLOSE POS</button>
+                        </t>
+
+                    </div>
+                    <div class="customer-section">
+
+                        <input
+                            type="text"
+                            placeholder="Customer Name"
+                            t-model="state.customer_name"
+                        />
+
+
+                    </div>
                 </div>
 
 
@@ -109,10 +130,13 @@
                             <div class="cart-line">
 
                                 <div class="cart-product">
+                                    <div class="cart-name">
+                                        <t t-esc="line.name"/>
+                                    </div>
 
-                                    <div class="cart-name"
-                                         t-esc="line.name"/>
-
+                                    <div class="cart-desc" t-if="line.description">
+                                        <t t-esc="line.description"/>
+                                    </div>
                                     <div class="cart-price">
 
                                         <t t-esc="
@@ -208,31 +232,20 @@
                 <div class="order-footer">
 
                     <div class="summary-row">
-
-                        <!-- TOTAL -->
-                        <div class="total-row">
+                        <div>
                             <span>Total</span>
-                            <strong>
-                                <t t-esc="this.formatPrice(state.total)"/>
-                            </strong>
+                            <strong><t t-esc="this.formatPrice(state.total)"/></strong>
                         </div>
 
-                        <!-- CASH -->
-                        <div class="payment-row">
+                        <div>
                             <span>Cash</span>
-                            <strong>
-                                <t t-esc="this.formatPrice(state.cash || 0)"/>
-                            </strong>
+                            <strong><t t-esc="this.formatPrice(state.cash || 0)"/></strong>
                         </div>
 
-                        <!-- CHANGE -->
-                        <div class="payment-row change">
+                        <div>
                             <span>Change</span>
-                            <strong>
-                                <t t-esc="this.formatPrice(state.change)"/>
-                            </strong>
+                            <strong><t t-esc="this.formatPrice(state.change)"/></strong>
                         </div>
-
                     </div>
 
                     <!-- KEYPAD -->
@@ -277,5 +290,5 @@
         </div>
 
     </t>
-
+        
 </templates>

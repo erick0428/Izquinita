@@ -17,7 +17,9 @@
             <list string="POS Transactions">
 
                 <field name="name"/>
+                <field name="customer_name"/>
                 <field name="total"/>
+                <field name="session_id"/>
 
             </list>
 
@@ -45,6 +47,7 @@
                     <group>
 
                         <field name="name"/>
+                        <field name="customer_name"/>
 
                     </group>
 
@@ -54,6 +57,7 @@
                         <list editable="bottom">
 
                             <field name="product_id"/>
+                            <field name="product_description"/>
                             <field name="variant_id"/>
                             <field name="quantity"/>
                             <field name="price"/>
@@ -105,29 +109,12 @@
 
         <field name="tag">tindahan_pos.pos_screen</field>
 
+
+
     </record>
 
 
-    <!-- ===================================================== -->
-    <!-- POS MENU -->
-    <!-- ===================================================== -->
-
-    <!-- <menuitem
-        id="menu_tindahan_pos"
-        name="POS"
-        action="action_pos_screen"
-        sequence="70"/> -->
 
 
-    <!-- ===================================================== -->
-    <!-- TRANSACTION MANAGEMENT MENU -->
-    <!-- ===================================================== -->
-
-    <menuitem
-        id="menu_tindahan_pos_transactions"
-        name="POS Transactions"
-        parent="menu_tindahan_pos"
-        action="action_pos"
-        sequence="20"/>
 
 </odoo>

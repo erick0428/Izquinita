@@ -1,22 +1,51 @@
-<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+        <!-- ACTION FIRST -->
+        <!-- <record id="action_pos" model="ir.actions.client">
+            <field name="name">POS</field>
+            <field name="tag">tindahan_pos.pos_screen</field>
+        </record> -->
 
         <!-- Top-level menu -->
-        <menuitem name="Izquinita POS" id="menu_tindahan_pos" action="action_product"
-            sequence="-90" />
+        <menuitem 
+            name="Izquinita POS" 
+            id="menu_tindahan_pos" 
+            action="action_product"
+            sequence="-90" 
+        />
+
+        <menuitem 
+            id="menu_product" 
+            name="Product" 
+            sequence="10" 
+            parent="menu_tindahan_pos"
+            action="action_product" 
+        />
+
+        <menuitem 
+            id="menu_variant" 
+            name="Variant" 
+            sequence="20" 
+            parent="menu_tindahan_pos"
+            action="action_variant" 
+        />
+
+        <menuitem 
+            id="menu_pos" 
+            name="POS" 
+            sequence="30" 
+            parent="menu_tindahan_pos"
+            action="action_pos_screen" 
+        />
+        <menuitem 
+            id="menu_pos_transaction" 
+            name="POS Trasaction" 
+            sequence="40" 
+            parent="menu_tindahan_pos"
+            action="action_pos" 
+        />
+
+
+
     </data>
-
-    <menuitem id="menu_product" name="Product" sequence="10" parent="menu_tindahan_pos"
-        action="action_product" />
-
-    <menuitem id="menu_variant" name="Variant" sequence="20" parent="menu_tindahan_pos"
-        action="action_variant" />
-
-    <menuitem id="menu_pos" name="POS" sequence="30" parent="menu_tindahan_pos"
-        action="action_pos_screen" />
-
-   
-    
-
 </odoo>

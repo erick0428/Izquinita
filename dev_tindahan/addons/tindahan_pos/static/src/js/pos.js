@@ -19,13 +19,18 @@ export class TindahanPOS extends Component {
             activeVariant: null, // ✅ added
             cash: "",      // ✅ REQUIRED
             change: 0,     // ✅ REQUIRED
-            
+            customer_name: "",   // ✅ NEW
+            session: null,
+            report: null,
+            showReport: false,
+            closingCashInput: "",
         });
 
 
 
         onWillStart(async () => {
             await this.loadProducts();
+            await this.loadSession(); // 🔥 important
         });
     }
 
@@ -129,6 +134,7 @@ export class TindahanPOS extends Component {
             cart.push({
                 product_id: product.id,
                 name: product.name,
+                description: product.description,
                 price: product.srp || 0,
                 quantity: 1,
             });
@@ -212,6 +218,9 @@ export class TindahanPOS extends Component {
     clearCart() {
         this.state.cart = [];
         this.state.total = 0;
+        this.state.cash = 0;
+        this.state.change = 0;
+        
     }
 
 
@@ -249,7 +258,9 @@ export class TindahanPOS extends Component {
                 method: "create",
                 args: [
                     {
+                        session_id: this.state.session.id,
                         name: "New",
+                        customer_name: this.state.customer_name,
                         line_ids: lines,
                     },
                 ],
@@ -265,7 +276,10 @@ export class TindahanPOS extends Component {
 
     async payOrder() {
         const cash = this.state.cash || 0;
-
+        if (!this.state.session) {
+            alert("Please open POS first.");
+            return;
+        }
         if (!this.state.cart.length) {
             alert("No items in cart.");
             return;
@@ -283,6 +297,88 @@ export class TindahanPOS extends Component {
         this.clearCart();
         this.state.cash = 0;
         this.state.change = 0;
+        this.state.customer_name = "";
+    }
+    async loadSession() {
+        const sessions = await rpc("/web/dataset/call_kw", {
+            model: "tindahan_pos.session",
+            method: "search_read",
+            args: [[['state', '=', 'open']], ['id', 'name']],
+            kwargs: {}, // 🔥 THIS LINE FIXES YOUR ERROR
+        });
+
+        this.state.session = sessions[0] || null;
+    }
+
+    async call(model, method, args = []) {
+        return rpc("/web/dataset/call_kw", {
+            model,
+            method,
+            args,
+            kwargs: {}, // always included
+        });
+    }
+    async openSession() {
+        await this.call("tindahan_pos.session", "create", [{
+            name: "New Session", opening_cash: 0,
+        }]);
+
+
+        await this.loadSession();
+    }
+
+    async closeSession() {
+        if (!this.state.session) {
+            alert("No active session.");
+            return;
+        }
+   
+        await rpc("/web/dataset/call_kw", {
+            model: "tindahan_pos.session",
+            method: "write",
+            args: [
+                [this.state.session.id],
+                { state: "closed" }
+            ],
+            kwargs: {}, // always included
+        });
+       
+        this.state.session = null;
+    }
+    openCloseDialog() {
+        this.state.closingCashInput = "";
+        this.state.showReport = true;
+    }
+    async confirmCloseSession() {
+
+        const cash = parseFloat(this.state.closingCashInput) || 0;
+
+        await rpc("/web/dataset/call_kw", {
+            model: "tindahan_pos.session",
+            method: "write",
+            args: [
+                [this.state.session.id],
+                {
+                    closing_input: cash,
+                    state: "closed",
+                }
+            ],
+            kwargs: {},
+        });
+
+        // 🔥 fetch report
+        const report = await rpc("/web/dataset/call_kw", {
+            model: "tindahan_pos.session",
+            method: "get_report_data",
+            args: [[this.state.session.id]],
+            kwargs: {},
+        });
+
+        this.state.report = report;
+    }
+    closeReport() {
+        this.state.showReport = false;
+        this.state.session = null;
     }
     // =========================================================
     // FORMAT MONEY
@@ -299,6 +395,7 @@ export class TindahanPOS extends Component {
             ).format(value || 0);
         }
     }
+
 
 
     registry

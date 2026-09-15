@@ -25,5 +25,11 @@ class AttendanceItem(models.Model):
         string='Status',
     )
         
+    @api.onchange('employee_id')
+    def _onchange_employee_id(self):
+        
+
+        if self.employee_id:
+            self.amount = self.employee_id.rate
    
     
