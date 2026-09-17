@@ -22,6 +22,7 @@
         'views/product.xml',
         'views/variant.xml',        
         'views/pos.xml',
+        'views/session.xml',
         'views/menu.xml',
                 
         'views/views.xml',
@@ -33,6 +34,9 @@
             "tindahan_pos/static/src/js/pos.js",
             "tindahan_pos/static/src/xml/pos.xml",
             "tindahan_pos/static/src/css/pos.css",
+            "tindahan_pos/static/src/js/pos.js",
+            "tindahan_pos/static/src/xml/pos_screen.xml",
+            "tindahan_pos/static/src/css/pos_screen.css",
            
         ],
     },

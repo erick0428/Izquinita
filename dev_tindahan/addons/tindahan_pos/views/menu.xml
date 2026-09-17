@@ -44,8 +44,19 @@
             parent="menu_tindahan_pos"
             action="action_pos" 
         />
-
-
+<!-- 
+        <menuitem 
+                id="menu_pos_screen1"
+                name="POS1"
+                sequence="50" 
+                parent="menu_tindahan_pos"
+                action="action_pos_screen1"/> -->
+        <menuitem 
+                id="menu_session"
+                name="Session"
+                sequence="60" 
+                parent="menu_tindahan_pos"
+                action="action_session"/>
 
     </data>
 </odoo>

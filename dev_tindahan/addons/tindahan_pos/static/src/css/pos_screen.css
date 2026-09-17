@@ -1,0 +1,49 @@
+.pos-container {
+    display: flex;
+    height: 100%;
+}
+
+.pos-left {
+    width: 30%;
+    background: #f4f4f4;
+    padding: 10px;
+}
+
+.pos-right {
+    width: 70%;
+    padding: 10px;
+}
+
+.pos-tabs {
+    margin-bottom: 10px;
+}
+
+.tab {
+    padding: 8px 12px;
+    margin-right: 5px;
+    border: 1px solid #ccc;
+}
+
+.tab.active {
+    background: #2b6edc;
+    color: white;
+}
+
+.product-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.product-tile {
+    width: 120px;
+    height: 90px;
+    background: #2b6edc;
+    color: white;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}

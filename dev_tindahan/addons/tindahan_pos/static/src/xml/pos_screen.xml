@@ -1,0 +1,47 @@
+<t t-name="tindahan_pos.POSScreen_v2">
+
+<div class="pos-container">
+
+    <!-- LEFT: CART -->
+    <div class="pos-left">
+        <h3>Order</h3>
+
+        <t t-foreach="state.cart || []" t-as="line" t-key="line.product_id">
+            <div class="cart-line">
+                <span><t t-esc="line.name"/></span>
+                <span>x<t t-esc="line.qty"/></span>
+                <span>₱<t t-esc="line.price * line.qty"/></span>
+            </div>
+        </t>
+    </div>
+
+    <!-- RIGHT: PRODUCTS -->
+    <div class="pos-right">
+
+        <!-- CATEGORY TABS -->
+        <div class="pos-tabs">
+            <t t-foreach="state.variants || []" t-as="v" t-key="v.id">
+                <button
+                    t-att-class="state.activeVariant === v.id ? 'tab active' : 'tab'"
+                    t-on-click="selectVariant.bind(this, v.id)">
+                    <t t-esc="v.name"/>
+                </button>
+            </t>
+        </div>
+
+        <!-- GRID -->
+        <div class="product-grid">
+            <t t-foreach="filteredProducts || []" t-as="p" t-key="p.id">
+                <div class="product-tile"
+                     t-on-click="addProduct.bind(this, p)">
+                    <div class="name"><t t-esc="p.name"/></div>
+                    <div class="price">₱<t t-esc="p.srp"/></div>
+                </div>
+            </t>
+        </div>
+
+    </div>
+
+</div>
+
+</t>
