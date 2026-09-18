@@ -15,15 +15,21 @@ export class TindahanPOS extends Component {
             products: [],
             cart: [],
             total: 0,
-            search: "",          // ✅ added
-            activeVariant: null, // ✅ added
-            cash: "",      // ✅ REQUIRED
-            change: 0,     // ✅ REQUIRED
-            customer_name: "",   // ✅ NEW
+            search: "",
+            activeVariant: null,
+
+            cash: "",
+            change: 0,
+            customer_name: "",
+
             session: null,
-            report: null,
-            showReport: false,
+
+            openingCashInput: "",
             closingCashInput: "",
+
+            showCloseDialog: false,
+            showReport: false,
+            report: null,
         });
 
 
@@ -303,8 +309,16 @@ export class TindahanPOS extends Component {
         const sessions = await rpc("/web/dataset/call_kw", {
             model: "tindahan_pos.session",
             method: "search_read",
-            args: [[['state', '=', 'open']], ['id', 'name']],
-            kwargs: {}, // 🔥 THIS LINE FIXES YOUR ERROR
+            args: [
+                [['state', '=', 'open']],
+                [
+                    'id',
+                    'name',
+                    'opening_cash',
+                    'total_sales'
+                ]
+            ],
+            kwargs: {},
         });
 
         this.state.session = sessions[0] || null;
@@ -319,12 +333,37 @@ export class TindahanPOS extends Component {
         });
     }
     async openSession() {
-        await this.call("tindahan_pos.session", "create", [{
-            name: "New Session", opening_cash: 0,
-        }]);
 
+        const input = prompt(
+            "Enter Opening Cash:"
+        );
+
+        if (input === null) {
+            return;
+        }
+
+        const openingCash = parseFloat(input);
+
+        if (isNaN(openingCash) || openingCash < 0) {
+            alert("Please enter a valid opening cash amount.");
+            return;
+        }
+
+        await this.call(
+            "tindahan_pos.session",
+            "create",
+            [{
+                name: "New Session",
+                opening_cash: openingCash,
+                state: "open",
+            }]
+        );
 
         await this.loadSession();
+
+        alert(
+            `POS opened with ${this.formatPrice(openingCash)}`
+        );
     }
 
     async closeSession() {
@@ -345,36 +384,80 @@ export class TindahanPOS extends Component {
        
         this.state.session = null;
     }
-    openCloseDialog() {
-        this.state.closingCashInput = "";
-        this.state.showReport = true;
-    }
+
     async confirmCloseSession() {
 
-        const cash = parseFloat(this.state.closingCashInput) || 0;
+        if (!this.state.session) {
+            alert("No active session.");
+            return;
+        }
 
-        await rpc("/web/dataset/call_kw", {
-            model: "tindahan_pos.session",
-            method: "write",
-            args: [
-                [this.state.session.id],
+        const actualCash = parseFloat(
+            this.state.closingCashInput
+        );
+
+        if (isNaN(actualCash) || actualCash < 0) {
+            alert("Please enter a valid actual cash amount.");
+            return;
+        }
+
+        const sessionId = this.state.session.id;
+
+        const data = await this.call(
+            "tindahan_pos.session",
+            "read",
+            [
+                [sessionId],
+                [
+                    "opening_cash",
+                    "total_sales"
+                ]
+            ]
+        );
+
+        const session = data[0];
+
+        const expectedCash =
+            session.opening_cash +
+            session.total_sales;
+
+        await this.call(
+            "tindahan_pos.session",
+            "write",
+            [
+                [sessionId],
                 {
-                    closing_input: cash,
+                    closing_cash: expectedCash,
+                    closing_input: actualCash,
                     state: "closed",
                 }
-            ],
-            kwargs: {},
-        });
+            ]
+        );
 
-        // 🔥 fetch report
-        const report = await rpc("/web/dataset/call_kw", {
-            model: "tindahan_pos.session",
-            method: "get_report_data",
-            args: [[this.state.session.id]],
-            kwargs: {},
-        });
+        const report = await this.call(
+            "tindahan_pos.session",
+            "get_report_data",
+            [[sessionId]]
+        );
 
         this.state.report = report;
+
+        this.state.showCloseDialog = false;
+        this.state.showReport = true;
+    }
+    openCloseDialog() {
+        console.log("CLOSE POS clicked");
+        console.log("Current session:", this.state.session);
+
+        if (!this.state.session) {
+            alert("No active POS session.");
+            return;
+        }
+
+        this.state.closingCashInput = "";
+        this.state.showCloseDialog = true;
+
+        console.log("showCloseDialog:", this.state.showCloseDialog);
     }
     closeReport() {
         this.state.showReport = false;

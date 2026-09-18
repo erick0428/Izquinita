@@ -440,3 +440,208 @@
     margin-bottom: 15px;
 }
 
+/* ========================================================= */
+/* CLOSE SESSION MODAL */
+/* ========================================================= */
+
+.modal-overlay {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    width: 100vw;
+    height: 100vh;
+
+    background: rgba(0, 0, 0, 0.55);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    z-index: 99999;
+}
+
+.modal {
+    width: 450px;
+    max-width: 90vw;
+
+    background: white;
+
+    padding: 30px;
+
+    border-radius: 12px;
+
+    box-shadow:
+        0 10px 40px rgba(0, 0, 0, 0.3);
+
+    position: relative;
+
+    z-index: 100000;
+}
+
+.modal h2 {
+    margin-top: 0;
+    margin-bottom: 25px;
+
+    font-size: 24px;
+    font-weight: bold;
+}
+
+
+/* ========================================================= */
+/* CASH ROW */
+/* ========================================================= */
+
+.cash-row {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 12px 0;
+
+    border-bottom: 1px solid #eee;
+}
+
+.cash-row label,
+.cash-row span {
+    color: #555;
+}
+
+.cash-row strong {
+    font-size: 17px;
+}
+
+
+/* ========================================================= */
+/* CASH INPUT */
+/* ========================================================= */
+
+.cash-input {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.cash-input label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    font-weight: bold;
+}
+
+.cash-input input {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    padding: 12px;
+
+    font-size: 18px;
+
+    border: 1px solid #ccc;
+
+    border-radius: 6px;
+}
+
+
+/* ========================================================= */
+/* MODAL BUTTONS */
+/* ========================================================= */
+
+.modal-actions {
+    display: flex;
+
+    gap: 10px;
+
+    margin-top: 20px;
+}
+
+.modal-actions button {
+    flex: 1;
+
+    padding: 13px;
+
+    border: none;
+
+    border-radius: 6px;
+
+    cursor: pointer;
+
+    font-size: 15px;
+
+    font-weight: bold;
+}
+
+.modal-actions button:first-child {
+    background: #dc3545;
+    color: white;
+}
+
+.modal-actions button:first-child:hover {
+    background: #bb2d3b;
+}
+
+.modal-actions button:last-child {
+    background: #6c757d;
+    color: white;
+}
+
+.modal-actions button:last-child:hover {
+    background: #5c636a;
+}
+
+
+/* ========================================================= */
+/* CLOSE POS BUTTON */
+/* ========================================================= */
+
+.close-pos-button {
+    margin-left: 10px;
+
+    padding: 6px 12px;
+
+    background: #dc3545;
+
+    color: white;
+
+    border: none;
+
+    border-radius: 5px;
+
+    cursor: pointer;
+}
+
+.close-pos-button:hover {
+    background: #bb2d3b;
+}
+
+
+/* ========================================================= */
+/* REPORT MODAL */
+/* ========================================================= */
+
+.modal-overlay .modal > button {
+    width: 100%;
+
+    margin-top: 20px;
+
+    padding: 12px;
+
+    border: none;
+
+    border-radius: 6px;
+
+    background: #198754;
+
+    color: white;
+
+    font-size: 16px;
+
+    cursor: pointer;
+}
+
+.modal-overlay .modal > button:hover {
+    background: #157347;
+}

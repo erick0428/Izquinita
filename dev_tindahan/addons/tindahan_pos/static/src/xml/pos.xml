@@ -6,17 +6,13 @@
 
         <div class="tindahan-pos">
 
-            <!-- ================================================= -->
-            <!-- LEFT SIDE -->
-            <!-- ================================================= -->
-
+            <!-- LEFT -->
             <div class="pos-products">
 
                 <div class="pos-header">
                     <h1>Products</h1>
                 </div>
 
-                <!-- SEARCH -->
                 <div class="pos-search">
                     <input
                         type="text"
@@ -25,19 +21,22 @@
                     />
                 </div>
 
-                <!-- CATEGORY TABS -->
                 <div class="category-tabs">
 
-                    <t t-foreach="state.variants"
-                    t-as="variant"
-                    t-key="variant.id">
+                    <t
+                        t-foreach="state.variants"
+                        t-as="variant"
+                        t-key="variant.id"
+                    >
 
                         <button
                             t-att-class="{
                                 'tab-button': true,
                                 'active': state.activeVariant === variant.id
                             }"
-                            t-on-click="() => this.state.activeVariant = variant.id"
+                            t-on-click="
+                                () => this.state.activeVariant = variant.id
+                            "
                         >
                             <t t-esc="variant.name"/>
                         </button>
@@ -46,27 +45,30 @@
 
                 </div>
 
-                <!-- ACTIVE PRODUCTS -->
-                <t t-set="active"
-                t-value="state.variants.find(v => v.id === state.activeVariant)"/>
+                <t
+                    t-set="active"
+                    t-value="state.variants.find(v => v.id === state.activeVariant)"
+                />
 
                 <div class="product-grid">
 
                     <t t-if="active">
 
-                        <t t-foreach="active.products.filter(p =>
-                            !state.search ||
-                            p.name.toLowerCase().includes(state.search.toLowerCase())
-                        )"
-                        t-as="product"
-                        t-key="product.id">
+                        <t
+                            t-foreach="active.products.filter(p => !state.search || p.name.toLowerCase().includes(state.search.toLowerCase()))"
+                            t-as="product"
+                            t-key="product.id"
+                        >
 
                             <button
                                 class="product-card"
-                                t-on-click="() => this.addProduct(product)">
+                                t-on-click="() => this.addProduct(product)"
+                            >
 
-                                <div class="product-name"
-                                    t-esc="product.name"/>
+                                <div
+                                    class="product-name"
+                                    t-esc="product.name"
+                                />
 
                                 <div class="product-price">
                                     <t t-esc="this.formatPrice(product.srp)"/>
@@ -83,27 +85,42 @@
             </div>
 
 
-            <!-- ================================================= -->
-            <!-- RIGHT SIDE -->
-            <!-- ================================================= -->
-
+            <!-- RIGHT -->
             <div class="pos-order">
 
                 <div class="order-header">
 
                     <h1>Current Order</h1>
+
                     <div class="session-bar">
 
                         <t t-if="!state.session">
-                            <button t-on-click="openSession">OPEN POS</button>
+
+                            <button t-on-click="openSession">
+                                OPEN POS
+                            </button>
+
                         </t>
 
                         <t t-else="">
-                            <span>Session: <t t-esc="state.session.name"/></span>
-                            <button t-on-click="closeSession">CLOSE POS</button>
+
+                            <span>
+                                Session:
+                                <t t-esc="state.session.name"/>
+                            </span>
+
+                            <button
+                                type="button"
+                                class="close-pos-button"
+                                t-on-click="openCloseDialog"
+                            >
+                                CLOSE POS
+                            </button>
+
                         </t>
 
                     </div>
+
                     <div class="customer-section">
 
                         <input
@@ -112,89 +129,82 @@
                             t-model="state.customer_name"
                         />
 
-
                     </div>
+
                 </div>
 
 
                 <!-- CART -->
-
                 <div class="cart">
 
                     <t t-if="state.cart.length">
 
-                        <t t-foreach="state.cart"
-                           t-as="line"
-                           t-key="line.product_id">
+                        <t
+                            t-foreach="state.cart"
+                            t-as="line"
+                            t-key="line.product_id"
+                        >
 
                             <div class="cart-line">
 
                                 <div class="cart-product">
+
                                     <div class="cart-name">
                                         <t t-esc="line.name"/>
                                     </div>
 
-                                    <div class="cart-desc" t-if="line.description">
+                                    <div
+                                        class="cart-desc"
+                                        t-if="line.description"
+                                    >
                                         <t t-esc="line.description"/>
                                     </div>
+
                                     <div class="cart-price">
-
-                                        <t t-esc="
-                                            this.formatPrice(line.price)
-                                        "/>
-
+                                        <t t-esc="this.formatPrice(line.price)"/>
                                     </div>
 
                                 </div>
 
 
-                                <!-- QUANTITY -->
-
                                 <div class="quantity-controls">
 
                                     <button
                                         class="quantity-button"
-                                        t-on-click="
-                                            () => this.decreaseQuantity(line)
-                                        ">
+                                        t-on-click="() => this.decreaseQuantity(line)"
+                                    >
                                         −
                                     </button>
 
-
                                     <span t-esc="line.quantity"/>
-
 
                                     <button
                                         class="quantity-button"
-                                        t-on-click="
-                                            () => this.increaseQuantity(line)
-                                        ">
+                                        t-on-click="() => this.increaseQuantity(line)"
+                                    >
                                         +
                                     </button>
 
                                 </div>
 
 
-                                <!-- SUBTOTAL -->
-
                                 <div class="line-subtotal">
 
-                                    <t t-esc="
-                                        this.formatPrice(
-                                            line.price * line.quantity
-                                        )
-                                    "/>
+                                    <t
+                                        t-esc="
+                                            this.formatPrice(
+                                                line.price * line.quantity
+                                            )
+                                        "
+                                    />
 
                                 </div>
 
 
-                                <!-- REMOVE -->
-
                                 <button
                                     class="remove-button"
-                                    t-on-click="
-                                        () => this.removeProduct(line)
-                                    ">
+                                    t-on-click="() => this.removeProduct(line)"
+                                >
                                     ×
                                 </button>
 
@@ -204,9 +214,6 @@
 
                     </t>
 
-
-                    <!-- EMPTY CART -->
-
                     <t t-else="">
 
                         <div class="empty-cart">
@@ -214,8 +221,7 @@
                             <h3>No products</h3>
 
                             <p>
-                                Select a product to add it
-                                to the order.
+                                Select a product to add it to the order.
                             </p>
 
                         </div>
@@ -225,39 +231,48 @@
                 </div>
 
 
-                <!-- ================================================= -->
-                <!-- TOTAL -->
-                <!-- ================================================= -->
-
+                <!-- FOOTER -->
                 <div class="order-footer">
 
                     <div class="summary-row">
+
                         <div>
                             <span>Total</span>
-                            <strong><t t-esc="this.formatPrice(state.total)"/></strong>
+                            <strong>
+                                <t t-esc="this.formatPrice(state.total)"/>
+                            </strong>
                         </div>
 
                         <div>
                             <span>Cash</span>
-                            <strong><t t-esc="this.formatPrice(state.cash || 0)"/></strong>
+                            <strong>
+                                <t t-esc="this.formatPrice(state.cash || 0)"/>
+                            </strong>
                         </div>
 
                         <div>
                             <span>Change</span>
-                            <strong><t t-esc="this.formatPrice(state.change)"/></strong>
+                            <strong>
+                                <t t-esc="this.formatPrice(state.change)"/>
+                            </strong>
                         </div>
+
                     </div>
+
 
                     <!-- KEYPAD -->
                     <div class="keypad">
 
-                        <t t-foreach="['7','8','9','4','5','6','1','2','3','0','.','⌫']"
-                        t-as="key"
-                        t-key="key">
+                        <t
+                            t-foreach="['7','8','9','4','5','6','1','2','3','0','.','⌫']"
+                            t-as="key"
+                            t-key="key"
+                        >
 
                             <button
                                 class="key"
-                                t-on-click="() => this.pressKey(key)">
+                                t-on-click="() => this.pressKey(key)"
+                            >
                                 <t t-esc="key"/>
                             </button>
 
@@ -265,19 +280,20 @@
 
                     </div>
 
-                    <!-- ACTIONS -->
+
                     <div class="order-actions">
 
                         <button
                             class="clear-button"
-                            t-on-click="() => this.clearCart()">
+                            t-on-click="clearCart"
+                        >
                             CLEAR
                         </button>
 
-
                         <button
                             class="pay-button"
-                            t-on-click="() => this.payOrder()">
+                            t-on-click="payOrder"
+                        >
                             PAY
                         </button>
 
@@ -287,8 +303,101 @@
 
             </div>
 
+
+            <!-- ================================================= -->
+            <!-- CLOSE SESSION MODAL -->
+            <!-- ================================================= -->
+
+            <t t-if="state.showCloseDialog">
+
+                <div class="pos-close-overlay">
+
+                    <div class="pos-close-modal">
+
+                        <h2>Close POS Session</h2>
+
+                        <div class="cash-row">
+
+                            <label>Opening Cash</label>
+
+                            <strong>
+                                <t t-esc="
+                                    this.formatPrice(
+                                        state.session.opening_cash
+                                    )
+                                "/>
+                            </strong>
+
+                        </div>
+
+                        <div class="cash-row">
+
+                            <label>Total Sales</label>
+
+                            <strong>
+                                <t t-esc="
+                                    this.formatPrice(
+                                        state.session.total_sales
+                                    )
+                                "/>
+                            </strong>
+
+                        </div>
+
+                        <div class="cash-row">
+
+                            <label>Expected Closing Cash</label>
+
+                            <strong>
+                                <t t-esc="
+                                    this.formatPrice(
+                                        (state.session.opening_cash || 0) +
+                                        (state.session.total_sales || 0)
+                                    )
+                                "/>
+                            </strong>
+
+                        </div>
+
+                        <div class="cash-input">
+
+                            <label>Actual Cash Counted</label>
+
+                            <input
+                                type="number"
+                                step="0.01"
+                                t-model="state.closingCashInput"
+                                placeholder="Enter actual cash"
+                            />
+
+                        </div>
+
+                        <div class="modal-actions">
+
+                            <button
+                                type="button"
+                                t-on-click="confirmCloseSession"
+                            >
+                                CLOSE SESSION
+                            </button>
+
+                            <button
+                                type="button"
+                                t-on-click="() => this.state.showCloseDialog = false"
+                            >
+                                CANCEL
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </t>
+
         </div>
 
     </t>
-        
+
 </templates>
