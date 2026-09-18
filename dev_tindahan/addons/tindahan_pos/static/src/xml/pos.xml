@@ -396,6 +396,102 @@
 
             </t>
 
+            <!-- Show report -->
+
+            <t t-if="state.showReport">
+
+                <div class="pos-close-overlay">
+
+                    <div class="pos-close-modal">
+
+                        <h2>POS Closing Report</h2>
+
+                        <div class="cash-row">
+                            <label>Session</label>
+                            <strong>
+                                <t t-esc="state.report.name"/>
+                            </strong>
+                        </div>
+
+                        <div class="cash-row">
+                            <label>Total Orders</label>
+                            <strong>
+                                <t t-esc="state.report.total_orders"/>
+                            </strong>
+                        </div>
+
+                        <div class="cash-row">
+                            <label>Opening Cash</label>
+                            <strong>
+                                <t t-esc="
+                                    this.formatPrice(
+                                        state.report.opening_cash
+                                    )
+                                "/>
+                            </strong>
+                        </div>
+
+                        <div class="cash-row">
+                            <label>Total Sales</label>
+                            <strong>
+                                <t t-esc="
+                                    this.formatPrice(
+                                        state.report.total_sales
+                                    )
+                                "/>
+                        </strong>
+                        </div>
+
+                        <div class="cash-row">
+                            <label>Expected Closing Cash</label>
+                            <strong>
+                                <t t-esc="
+                                    this.formatPrice(
+                                        state.report.expected_cash
+                                    )
+                                "/>
+                            </strong>
+                        </div>
+
+                        <div class="cash-row">
+                            <label>Actual Cash Counted</label>
+                            <strong>
+                                <t t-esc="
+                                    this.formatPrice(
+                                        state.report.closing_input
+                                    )
+                                "/>
+                            </strong>
+                        </div>
+
+                        <div class="cash-row">
+                            <label>Difference</label>
+                            <strong>
+                                <t t-esc="
+                                    this.formatPrice(
+                                        state.report.difference
+                                    )
+                                "/>
+                            </strong>
+                        </div>
+
+                        <div class="modal-actions">
+
+                            <button
+                                type="button"
+                                t-on-click="closeReport"
+                            >
+                                CLOSE
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </t>
+
         </div>
 
     </t>
