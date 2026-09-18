@@ -276,16 +276,19 @@ export class TindahanPOS extends Component {
 
 
         alert("Order saved!");
-
+        await this.loadSession();
         this.clearCart();
     }
 
     async payOrder() {
-        const cash = this.state.cash || 0;
+
+        const cash = parseFloat(this.state.cash) || 0;
+
         if (!this.state.session) {
             alert("Please open POS first.");
             return;
         }
+
         if (!this.state.cart.length) {
             alert("No items in cart.");
             return;
@@ -296,12 +299,16 @@ export class TindahanPOS extends Component {
             return;
         }
 
+        // Make sure change is calculated
+        this.computeChange();
+
+        const change = this.state.change;
+
         await this.saveOrder();
 
-        alert(`Change: ${this.formatPrice(this.state.change)}`);
+        alert(`Change: ${this.formatPrice(change)}`);
 
-        this.clearCart();
-        this.state.cash = 0;
+        this.state.cash = "";
         this.state.change = 0;
         this.state.customer_name = "";
     }
@@ -388,7 +395,7 @@ export class TindahanPOS extends Component {
     async confirmCloseSession() {
 
         if (!this.state.session) {
-            alert("No active session.");
+            alert("No active POS session.");
             return;
         }
 
@@ -403,47 +410,97 @@ export class TindahanPOS extends Component {
 
         const sessionId = this.state.session.id;
 
-        const data = await this.call(
-            "tindahan_pos.session",
-            "read",
-            [
-                [sessionId],
+        try {
+
+            // Get latest session data
+            const data = await this.call(
+                "tindahan_pos.session",
+                "read",
                 [
-                    "opening_cash",
-                    "total_sales"
+                    [sessionId],
+                    [
+                        "opening_cash",
+                        "total_sales"
+                    ]
                 ]
-            ]
-        );
+            );
 
-        const session = data[0];
+            if (!data || !data.length) {
+                alert("Session not found.");
+                return;
+            }
 
-        const expectedCash =
-            session.opening_cash +
-            session.total_sales;
+            const session = data[0];
 
-        await this.call(
-            "tindahan_pos.session",
-            "write",
-            [
-                [sessionId],
-                {
-                    closing_cash: expectedCash,
-                    closing_input: actualCash,
-                    state: "closed",
-                }
-            ]
-        );
+            const openingCash = session.opening_cash || 0;
+            const totalSales = session.total_sales || 0;
 
-        const report = await this.call(
-            "tindahan_pos.session",
-            "get_report_data",
-            [[sessionId]]
-        );
+            const expectedCash =
+                openingCash + totalSales;
 
-        this.state.report = report;
+            const difference =
+                actualCash - expectedCash;
 
-        this.state.showCloseDialog = false;
-        this.state.showReport = true;
+
+            // ==========================================
+            // CLOSE SESSION IN DATABASE
+            // ==========================================
+
+            await this.call(
+                "tindahan_pos.session",
+                "write",
+                [
+                    [sessionId],
+                    {
+                        closing_cash: expectedCash,
+                        closing_input: actualCash,
+                        state: "closed",
+                    }
+                ]
+            );
+
+
+            // ==========================================
+            // CREATE CLOSING REPORT
+            // ==========================================
+
+            this.state.report = {
+                opening_cash: openingCash,
+                total_sales: totalSales,
+                expected_cash: expectedCash,
+                closing_input: actualCash,
+                difference: difference,
+            };
+
+
+            // ==========================================
+            // IMPORTANT:
+            // REMOVE ACTIVE SESSION FROM UI
+            // ==========================================
+
+            this.state.session = null;
+
+
+            // Close the closing dialog
+            this.state.showCloseDialog = false;
+
+            // Show report
+            this.state.showReport = true;
+
+
+            console.log("POS SESSION CLOSED:", sessionId);
+
+        } catch (error) {
+
+            console.error(
+                "Error closing POS session:",
+                error
+            );
+
+            alert(
+                "Failed to close POS session."
+            );
+        }
     }
     openCloseDialog() {
         console.log("CLOSE POS clicked");
