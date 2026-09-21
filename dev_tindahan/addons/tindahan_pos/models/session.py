@@ -1,6 +1,8 @@
 from odoo import models, fields, api
-
-
+import time
+from datetime import datetime
+from odoo.exceptions import ValidationError
+from psycopg2 import OperationalError
 class POSSession(models.Model):
     _name = 'tindahan_pos.session'
     _description = 'POS Session'
@@ -33,7 +35,51 @@ class POSSession(models.Model):
         compute="_compute_total_sales",
         store=True
     )
+    def _generate_name(self):
+        user = self.env.user
+        today = datetime.now().date()
 
+        sequence = self.env["tindahan_pos.sequence"].search([
+            ("name", "=", "Session"),
+            ("user_id", "=", user.id),
+        ], limit=1)
+
+        # Create sequence per user if not exists
+        if not sequence:
+            sequence = self.env["tindahan_pos.sequence"].create({
+                "name": "Sales",
+                "user_id": user.id,
+                "date": today,
+                "count": 0,
+            })
+
+        # Reset daily per user
+        if sequence.date != today:
+            sequence.date = today
+            sequence.count = 0
+
+        while True:
+
+
+            name = f"{datetime.now().strftime('%y%m%d')}-{user.id}"
+
+            if not self.search([('name', '=', name)]):
+                break
+
+        return name
+    
+    @api.model_create_multi
+    def create(self, vals_list):
+
+        for vals in vals_list:
+                   
+            vals["name"] = self._generate_name()                
+
+        return super().create(vals_list)      
+
+  
+    
+     
     @api.depends('pos_ids.total')
     def _compute_total_sales(self):
         for rec in self:

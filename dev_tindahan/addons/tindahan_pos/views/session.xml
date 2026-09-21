@@ -42,7 +42,16 @@
                         <field name="total_sales"/>
                         
 					</group>
-					         
+					<field name="pos_ids">
+
+                        <list editable="bottom">
+
+                            <field name="name"/>
+                            <field name="customer_name"/>
+                            <field name="total"/>
+                        </list>
+
+                    </field>         
            
                 </sheet>
             </form>
