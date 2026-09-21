@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<odoo>
+
+    <!-- ================================================= -->
+    <!-- RECEIPT REPORT -->
+    <!-- ================================================= -->
+
+    <record id="action_report_pos_receipt" model="ir.actions.report">
+
+        <field name="name">POS Receipt</field>
+
+        <field name="model">tindahan_pos.pos</field>
+
+        <field name="report_type">qweb-pdf</field>
+
+        <field name="report_name">
+            tindahan_pos.report_pos_receipt
+        </field>
+
+        <field name="report_file">
+            tindahan_pos.report_pos_receipt
+        </field>
+
+        <field name="print_report_name">
+            "'Receipt - %s' % object.name"
+        </field>
+
+    </record>
+
+
+    <!-- ================================================= -->
+    <!-- RECEIPT TEMPLATE -->
+    <!-- ================================================= -->
+
+    <template id="report_pos_receipt">
+
+        <t t-call="web.html_container">
+
+            <t t-foreach="docs" t-as="o">
+
+                <div class="page receipt">
+
+                    <div class="receipt-header">
+
+                        <h2>TINDAHAN POS</h2>
+
+                        <div>OFFICIAL RECEIPT</div>
+
+                    </div>
+
+
+                    <div class="receipt-info">
+
+                        <div>
+                            <span>Order:</span>
+                            <strong>
+                                <t t-esc="o.name"/>
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>Customer:</span>
+                            <strong>
+                                <t t-esc="
+                                    o.customer_name or 'Walk-in Customer'
+                                "/>
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>Session:</span>
+                            <strong>
+                                <t t-esc="o.session_id.name"/>
+                            </strong>
+                        </div>
+
+                    </div>
+
+
+                    <!-- ITEMS -->
+
+                    <table class="receipt-items">
+
+                        <thead>
+
+                            <tr>
+                                <th>Item</th>
+                                <th>Qty</th>
+                                <th>Price</th>
+                                <th>Total</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            <t t-foreach="o.line_ids" t-as="line">
+
+                                <tr>
+
+                                    <td>
+                                        <t t-esc="
+                                            line.product_description
+                                            or line.product_id.name
+                                        "/>
+                                    </td>
+
+                                    <td>
+                                        <t t-esc="line.quantity"/>
+                                    </td>
+
+                                    <td>
+                                        <t t-esc="
+                                            '%.2f' % line.price
+                                        "/>
+                                    </td>
+
+                                    <td>
+                                        <t t-esc="
+                                            '%.2f' % line.subtotal
+                                        "/>
+                                    </td>
+
+                                </tr>
+
+                            </t>
+
+                        </tbody>
+
+                    </table>
+
+
+                    <!-- TOTAL -->
+
+                    <div class="receipt-summary">
+
+                        <div>
+                            <span>TOTAL</span>
+
+                            <strong>
+                                ₱
+                                <t t-esc="'%.2f' % o.total"/>
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>CASH</span>
+
+                            <strong>
+                                ₱
+                                <t t-esc="'%.2f' % o.cash"/>
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>CHANGE</span>
+
+                            <strong>
+                                ₱
+                                <t t-esc="'%.2f' % o.change"/>
+                            </strong>
+                        </div>
+
+                    </div>
+
+
+                    <div class="receipt-footer">
+
+                        <p>Thank you for your purchase!</p>
+
+                    </div>
+
+                </div>
+
+            </t>
+
+        </t>
+
+    </template>
+
+</odoo>

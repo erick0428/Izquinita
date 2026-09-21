@@ -18,6 +18,8 @@
 
                 <field name="name"/>
                 <field name="customer_name"/>
+                <field name="cash"/>
+                <field name="change"/>
                 <field name="total"/>
                 <field name="session_id"/>
 
@@ -41,14 +43,24 @@
         <field name="arch" type="xml">
 
             <form string="POS Transaction">
+                <header>
 
+                    <button
+                        name="action_print_receipt"
+                        type="object"
+                        string="Print Receipt"
+                        class="btn-primary"
+                    />
+
+                </header>
                 <sheet>
 
                     <group>
 
                         <field name="name"/>
                         <field name="customer_name"/>
-
+                        <field name="cash"/>
+                        <field name="change"/>
                     </group>
 
 

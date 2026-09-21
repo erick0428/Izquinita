@@ -492,6 +492,115 @@
 
             </t>
 
+            <!-- ================================================= -->
+            <!-- RECEIPT -->
+            <!-- ================================================= -->
+
+            <t t-if="state.showReceipt">
+
+                <div class="receipt-print">
+
+                    <div class="receipt-header">
+                        <h2>TINDAHAN POS</h2>
+                        <p>Official Receipt</p>
+                    </div>
+
+                    <div class="receipt-info">
+                        <div>
+                            <span>Order:</span>
+                            <strong>
+                                <t t-esc="state.receipt.order_name"/>
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>Customer:</span>
+                            <strong>
+                                <t t-esc="state.receipt.customer_name || 'Walk-in Customer'"/>
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>Date:</span>
+                            <strong>
+                                <t t-esc="state.receipt.date"/>
+                            </strong>
+                        </div>
+                    </div>
+
+                    <div class="receipt-items">
+
+                        <t
+                            t-foreach="state.receipt.lines"
+                            t-as="line"
+                            t-key="line.product_id"
+                        >
+
+                            <div class="receipt-line">
+
+                                <div class="receipt-product">
+                                    <span>
+                                        <t t-esc="line.name"/>
+                                    </span>
+
+                                    <small>
+                                        <t t-esc="line.quantity"/>
+                                        ×
+                                        <t t-esc="this.formatPrice(line.price)"/>
+                                    </small>
+                                </div>
+
+                                <strong>
+                                    <t
+                                        t-esc="
+                                            this.formatPrice(
+                                                line.price * line.quantity
+                                            )
+                                        "
+                                    />
+                                </strong>
+
+                            </div>
+
+                        </t>
+
+                    </div>
+
+                    <div class="receipt-total">
+
+                        <div>
+                            <span>Total</span>
+                            <strong>
+                                <t t-esc="this.formatPrice(state.receipt.total)"/>
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>Cash</span>
+                            <strong>
+                                <t t-esc="this.formatPrice(state.receipt.cash)"/>
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>Change</span>
+                            <strong>
+                                <t t-esc="this.formatPrice(state.receipt.change)"/>
+                            </strong>
+                        </div>
+
+                    </div>
+
+                    <div class="receipt-footer">
+                        <p>Thank you for your purchase!</p>
+                    </div>
+
+                </div>
+
+            </t>
+
+            
+
         </div>
 
     </t>

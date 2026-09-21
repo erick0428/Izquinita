@@ -33,6 +33,15 @@ class POS(models.Model):
         compute='_compute_total',
         store=True
     )
+    cash = fields.Float(
+        string='Cash',
+        default=0.0
+    )
+
+    change = fields.Float(
+        string='Change',
+        default=0.0
+    )
 
     @api.depends('line_ids.subtotal')
     def _compute_total(self):
@@ -97,6 +106,20 @@ class POS(models.Model):
                     raise
                 time.sleep(0.2)
 
+    @api.model
+    def create_pos_order(self, vals):
+
+        order = self.create(vals)
+
+        return {
+            'id': order.id,
+            'name': order.name,
+            'customer_name': order.customer_name,
+            'total': order.total,
+        }
+
+
+
     def action_open_session(self):
         self.create({
             'name': 'Session ' + fields.Datetime.now().strftime('%Y-%m-%d %H:%M'),
@@ -106,6 +129,14 @@ class POS(models.Model):
         for rec in self:
             rec.state = 'closed'
             rec.closing_cash = rec.total_sales        
+            
+    def action_print_receipt(self):
+        self.ensure_one()
+
+        return self.env.ref(
+            'tindahan_pos.action_report_pos_receipt'
+        ).report_action(self)
+            
 class POSLine(models.Model):
     _name = 'tindahan_pos.pos.line'
     _description = 'POS Order Line'

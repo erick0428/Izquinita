@@ -234,7 +234,7 @@ export class TindahanPOS extends Component {
     // SAVE ORDER
     // =========================================================
 
-    async saveOrder() {
+    async saveOrder(cash, change) {
 
         if (!this.state.cart.length) {
 
@@ -266,7 +266,9 @@ export class TindahanPOS extends Component {
                     {
                         session_id: this.state.session.id,
                         name: "New",
-                        customer_name: this.state.customer_name,
+                        customer_name: this.state.customer_name || "Walk-in Customer",
+                        cash: cash,
+                        change: change,
                         line_ids: lines,
                     },
                 ],
@@ -299,19 +301,73 @@ export class TindahanPOS extends Component {
             return;
         }
 
-        // Make sure change is calculated
+        // Calculate change
         this.computeChange();
 
         const change = this.state.change;
 
-        await this.saveOrder();
+        // -------------------------------------------------
+        // SAVE RECEIPT DATA BEFORE SAVING/CLEARING ORDER
+        // -------------------------------------------------
 
-        alert(`Change: ${this.formatPrice(change)}`);
+        this.state.receipt = {
+            order_name: "POS-" + Date.now(),
+
+            customer_name:
+                this.state.customer_name || "Walk-in Customer",
+
+            date: new Date().toLocaleString(),
+
+            lines: this.state.cart.map(line => ({
+                product_id: line.product_id,
+                name: line.name,
+                price: line.price,
+                quantity: line.quantity,
+            })),
+
+            total: this.state.total,
+
+            cash: cash,
+
+            change: change,
+        };
+
+        // -------------------------------------------------
+        // SAVE ORDER
+        // -------------------------------------------------
+
+        await this.saveOrder(cash, change);
+
+        // -------------------------------------------------
+        // SHOW RECEIPT
+        // -------------------------------------------------
+
+        this.state.showReceipt = true;
+
+        // Wait for OWL to render the receipt
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        // Open browser print dialog
+        window.print();
+
+        // -------------------------------------------------
+        // HIDE RECEIPT
+        // -------------------------------------------------
+
+        this.state.showReceipt = false;
+
+        // -------------------------------------------------
+        // RESET PAYMENT
+        // -------------------------------------------------
 
         this.state.cash = "";
         this.state.change = 0;
         this.state.customer_name = "";
+
+        // Optional notification
+        // alert(`Change: ${this.formatPrice(change)}`);
     }
+
     async loadSession() {
         const sessions = await rpc("/web/dataset/call_kw", {
             model: "tindahan_pos.session",
