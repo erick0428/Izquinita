@@ -1,9 +1,12 @@
 from odoo import models, fields, api
-from odoo.exceptions import ValidationError
-from odoo.exceptions import UserError 
+from odoo.exceptions import ValidationError, UserError
 from psycopg2 import OperationalError
 import time
 from datetime import datetime
+import logging
+
+_logger = logging.getLogger(__name__)
+
 
 class POS(models.Model):
     _name = 'tindahan_pos.pos'
@@ -16,12 +19,17 @@ class POS(models.Model):
         default='New',
         copy=False
     )
-    customer_name = fields.Char(string="Customer") 
+
+    customer_name = fields.Char(
+        string="Customer"
+    )
+
     session_id = fields.Many2one(
         'tindahan_pos.session',
         string='Session',
         required=True
     )
+
     line_ids = fields.One2many(
         'tindahan_pos.pos.line',
         'pos_id',
@@ -33,6 +41,7 @@ class POS(models.Model):
         compute='_compute_total',
         store=True
     )
+
     cash = fields.Float(
         string='Cash',
         default=0.0
@@ -43,6 +52,44 @@ class POS(models.Model):
         default=0.0
     )
 
+    # =====================================================
+    # PAYMENT
+    # =====================================================
+
+    payment_status = fields.Selection(
+        [
+            ('unpaid', 'Unpaid'),
+            ('paid', 'Paid'),
+        ],
+        string='Payment Status',
+        default='unpaid',
+        required=True,
+        copy=False
+    )
+
+    paid_at = fields.Datetime(
+        string='Paid At',
+        readonly=True,
+        copy=False
+    )
+
+    # =====================================================
+    # KITCHEN
+    # =====================================================
+
+    kitchen_status = fields.Selection(
+        [
+            ('new', 'New'),
+            ('preparing', 'Preparing'),
+            ('ready', 'Ready'),
+            ('completed', 'Completed'),
+        ],
+        string='Kitchen Status',
+        default='new',
+        required=True,
+        copy=False
+    )
+
     @api.depends('line_ids.subtotal')
     def _compute_total(self):
         for record in self:
@@ -50,6 +97,11 @@ class POS(models.Model):
                 line.subtotal
                 for line in record.line_ids
             )
+
+    # =====================================================
+    # GENERATE ORDER NUMBER
+    # =====================================================
+
     def _generate_name(self):
         user = self.env.user
         today = datetime.now().date()
@@ -59,7 +111,6 @@ class POS(models.Model):
             ("user_id", "=", user.id),
         ], limit=1)
 
-        # Create sequence per user if not exists
         if not sequence:
             sequence = self.env["tindahan_pos.sequence"].create({
                 "name": "Sales",
@@ -68,7 +119,6 @@ class POS(models.Model):
                 "count": 0,
             })
 
-        # Reset daily per user
         if sequence.date != today:
             sequence.date = today
             sequence.count = 0
@@ -76,67 +126,213 @@ class POS(models.Model):
         while True:
             sequence.count += 1
 
-            name = f"{datetime.now().strftime('%y%m%d')}-{user.id}-{str(sequence.count).zfill(5)}"
+            name = (
+                f"{datetime.now().strftime('%y%m%d')}-"
+                f"{user.id}-"
+                f"{str(sequence.count).zfill(5)}"
+            )
 
             if not self.search([('name', '=', name)]):
                 break
 
-        return name              
-            
+        return name
+
+    # =====================================================
+    # CREATE
+    # =====================================================
+
     @api.model_create_multi
     def create(self, vals_list):
+
         for attempt in range(3):
             try:
-                session = self.env['tindahan_pos.session'].search(
+
+                session = self.env[
+                    'tindahan_pos.session'
+                ].search(
                     [('state', '=', 'open')],
                     limit=1
                 )
 
                 if not session:
-                    raise ValidationError("No open session. Please open POS first.")
+                    raise ValidationError(
+                        "No open session. Please open POS first."
+                    )
 
                 for vals in vals_list:
                     vals['session_id'] = session.id
-                    vals["name"] = self._generate_name()                
+                    vals['name'] = self._generate_name()
 
                 return super().create(vals_list)
 
             except OperationalError:
+
                 if attempt == 2:
                     raise
+
                 time.sleep(0.2)
+
+    # =====================================================
+    # CREATE + PAY ORDER
+    # =====================================================
 
     @api.model
     def create_pos_order(self, vals):
 
+        cash = float(vals.get('cash', 0.0))
+        change = float(vals.get('change', 0.0))
+
+        vals.pop('cash', None)
+        vals.pop('change', None)
+        vals["kitchen_status"] = "new"
         order = self.create(vals)
+
+        if cash < order.total:
+            raise UserError(
+                f"Insufficient cash. "
+                f"Total is ₱{order.total:.2f}."
+            )
+
+        order.write({
+            'cash': cash,
+            'change': change,
+            'payment_status': 'paid',
+            'paid_at': fields.Datetime.now(),
+            'kitchen_status': 'new',
+        })
 
         return {
             'id': order.id,
             'name': order.name,
             'customer_name': order.customer_name,
             'total': order.total,
+            'cash': order.cash,
+            'change': order.change,
+            'payment_status': order.payment_status,
+            'kitchen_status': order.kitchen_status,
+
+            'items': [
+                {
+                    'product_id': line.product_id.id,
+                    'name': line.product_description,
+                    'quantity': line.quantity,
+                }
+                for line in order.line_ids
+            ],
         }
 
+    # =====================================================
+    # GET KITCHEN ORDERS
+    # =====================================================
+
+    @api.model
+    def get_kitchen_orders(self):
+
+        orders = self.search(
+            [
+                ('kitchen_status', '!=', 'completed'),
+            ],
+            order='id desc'
+        )
+
+        _logger.warning(
+            "KITCHEN: Found %s orders",
+            len(orders)
+        )
+
+        for order in orders:
+            _logger.warning(
+                "KITCHEN ORDER: %s | payment=%s | kitchen=%s",
+                order.name,
+                order.payment_status,
+                order.kitchen_status
+            )
+
+        result = []
+
+        for order in orders:
+
+            result.append({
+                'id': order.id,
+                'name': order.name,
+                'customer_name': (
+                    order.customer_name or
+                    'Walk-in Customer'
+                ),
+                'total': order.total,
+                'payment_status': order.payment_status,
+                'kitchen_status': order.kitchen_status,
+
+                'paid_at': (
+                    order.paid_at.isoformat()
+                    if order.paid_at
+                    else None
+                ),
+
+                'items': [
+                    {
+                        'product_id': line.product_id.id,
+                        'name': line.product_description,
+                        'quantity': line.quantity,
+                    }
+                    for line in order.line_ids
+                ],
+            })
+
+        return result
 
 
-    def action_open_session(self):
-        self.create({
-            'name': 'Session ' + fields.Datetime.now().strftime('%Y-%m-%d %H:%M'),
-            'opening_cash': 0,
-        })
-    def action_close_session(self):
-        for rec in self:
-            rec.state = 'closed'
-            rec.closing_cash = rec.total_sales        
-            
+    # =====================================================
+    # KITCHEN - START
+    # =====================================================
+
+    def action_start_preparing(self):
+
+        for order in self:
+
+            if order.payment_status != 'paid':
+                raise UserError(
+                    "Only paid orders can be prepared."
+                )
+
+            order.kitchen_status = 'preparing'
+
+        return True
+
+    # =====================================================
+    # KITCHEN - READY
+    # =====================================================
+
+    def action_mark_ready(self):
+
+        for order in self:
+            order.kitchen_status = 'ready'
+
+        return True
+
+    # =====================================================
+    # KITCHEN - COMPLETE
+    # =====================================================
+
+    def action_complete(self):
+
+        for order in self:
+            order.kitchen_status = 'completed'
+
+        return True
+
+    # =====================================================
+    # RECEIPT
+    # =====================================================
+
     def action_print_receipt(self):
         self.ensure_one()
 
         return self.env.ref(
             'tindahan_pos.action_report_pos_receipt'
         ).report_action(self)
-            
+
+
 class POSLine(models.Model):
     _name = 'tindahan_pos.pos.line'
     _description = 'POS Order Line'
@@ -153,6 +349,7 @@ class POSLine(models.Model):
         string='Code',
         required=True
     )
+
     product_description = fields.Char(
         related='product_id.description',
         string='Name',
@@ -193,9 +390,8 @@ class POSLine(models.Model):
     @api.constrains('quantity')
     def _check_quantity(self):
         for record in self:
+
             if record.quantity <= 0:
                 raise ValidationError(
                     'Quantity must be greater than zero.'
                 )
-                
-                               

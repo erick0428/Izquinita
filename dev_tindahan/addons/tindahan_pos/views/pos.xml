@@ -21,6 +21,8 @@
                 <field name="cash"/>
                 <field name="change"/>
                 <field name="total"/>
+                <field name="kitchen_status"/>
+                <field name="payment_status"/>
                 <field name="session_id"/>
 
             </list>
@@ -61,6 +63,8 @@
                         <field name="customer_name"/>
                         <field name="cash"/>
                         <field name="change"/>
+                        <field name="kitchen_status"/>
+                        <field name="payment_status"/>
                     </group>
 
 

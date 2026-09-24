@@ -1,0 +1,597 @@
+/* =========================================================
+   KITCHEN SCREEN
+   ========================================================= */
+
+.kitchen-screen {
+    width: 100%;
+    min-height: 100vh;
+    background: #f3f4f6;
+    color: #172033;
+    font-family: Arial, sans-serif;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.kitchen-header {
+    height: 82px;
+    background: #6f61a6;
+    color: white;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 28px;
+
+    box-sizing: border-box;
+}
+
+.kitchen-title {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.kitchen-icon {
+    font-size: 34px;
+}
+
+.kitchen-title h1 {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.kitchen-subtitle {
+    margin-top: 3px;
+    opacity: 0.75;
+    font-size: 13px;
+}
+
+.kitchen-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.live-dot {
+    width: 10px;
+    height: 10px;
+
+    border-radius: 50%;
+
+    background: #37d67a;
+
+    box-shadow:
+        0 0 0 4px rgba(55, 214, 122, 0.18);
+}
+
+.last-update {
+    margin-left: 15px;
+    font-weight: 400;
+    opacity: 0.75;
+}
+
+
+/* =========================================================
+   BOARD
+   ========================================================= */
+
+.kitchen-board {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 18px;
+
+    padding: 20px;
+
+    box-sizing: border-box;
+
+    min-height: calc(100vh - 82px);
+}
+
+
+/* =========================================================
+   COLUMNS
+   ========================================================= */
+
+.kitchen-column {
+    display: flex;
+    flex-direction: column;
+
+    min-width: 0;
+
+    background: #e5e7eb;
+
+    border-radius: 12px;
+
+    overflow: hidden;
+}
+
+.new-column {
+    background: #eaf2ff;
+}
+
+.preparing-column {
+    background: #fff8e6;
+}
+
+.ready-column {
+    background: #eafaf0;
+}
+
+
+/* =========================================================
+   COLUMN HEADER
+   ========================================================= */
+
+.column-header {
+    min-height: 76px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 14px 18px;
+
+    box-sizing: border-box;
+}
+
+.new-column .column-header {
+    background: #2474e8;
+    color: white;
+}
+
+.preparing-column .column-header {
+    background: #f59e0b;
+    color: white;
+}
+
+.ready-column .column-header {
+    background: #16a05d;
+    color: white;
+}
+
+.column-header h2 {
+    margin: 0;
+
+    font-size: 19px;
+    font-weight: 800;
+
+    letter-spacing: 0.5px;
+}
+
+.column-description {
+    display: block;
+
+    margin-top: 3px;
+
+    font-size: 12px;
+    opacity: 0.85;
+}
+
+.order-count {
+    display: flex;
+
+    width: 34px;
+    height: 34px;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.22);
+
+    font-size: 15px;
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   ORDERS
+   ========================================================= */
+
+.orders-container {
+    flex: 1;
+
+    padding: 14px;
+
+    overflow-y: auto;
+}
+
+
+/* =========================================================
+   ORDER CARD
+   ========================================================= */
+
+.order-card {
+    background: white;
+
+    border-radius: 10px;
+
+    margin-bottom: 14px;
+
+    padding: 16px;
+
+    box-shadow:
+        0 2px 7px rgba(0, 0, 0, 0.08);
+
+    border-left: 5px solid transparent;
+}
+
+.new-card {
+    border-left-color: #2474e8;
+}
+
+.preparing-card {
+    border-left-color: #f59e0b;
+}
+
+.ready-card {
+    border-left-color: #16a05d;
+}
+
+
+/* =========================================================
+   ORDER HEADER
+   ========================================================= */
+
+.order-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    padding-bottom: 12px;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.order-number {
+    font-size: 17px;
+    font-weight: 800;
+
+    color: #111827;
+}
+
+.customer-name {
+    margin-top: 3px;
+
+    color: #6b7280;
+
+    font-size: 12px;
+}
+
+.order-time {
+    color: #6b7280;
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   ITEMS
+   ========================================================= */
+
+.order-items {
+    padding: 12px 0;
+}
+
+.order-item {
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 9px;
+
+    padding: 5px 0;
+}
+
+.item-quantity {
+    min-width: 30px;
+
+    color: #111827;
+
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.item-name {
+    flex: 1;
+
+    color: #374151;
+
+    font-size: 15px;
+    line-height: 1.35;
+}
+
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+.kitchen-action {
+    width: 100%;
+
+    min-height: 48px;
+
+    border: none;
+    border-radius: 7px;
+
+    color: white;
+
+    font-size: 14px;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.1s,
+        opacity 0.1s;
+}
+
+.kitchen-action:hover {
+    opacity: 0.9;
+}
+
+.kitchen-action:active {
+    transform: scale(0.98);
+}
+
+.start-button {
+    background: #2474e8;
+}
+
+.ready-button {
+    background: #f59e0b;
+}
+
+.complete-button {
+    background: #16a05d;
+}
+
+
+/* =========================================================
+   READY LABEL
+   ========================================================= */
+
+.ready-label {
+    padding: 5px 8px;
+
+    border-radius: 5px;
+
+    background: #dcfce7;
+    color: #15803d;
+
+    font-size: 11px;
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   EMPTY
+   ========================================================= */
+
+.empty-column {
+    min-height: 180px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    color: #9ca3af;
+
+    font-size: 14px;
+}
+
+.empty-icon {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 10px;
+
+    border-radius: 50%;
+
+    background: rgba(0, 0, 0, 0.06);
+
+    font-size: 22px;
+}
+
+
+/* =========================================================
+   LOADING
+   ========================================================= */
+
+.kitchen-loading {
+    min-height: calc(100vh - 82px);
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    color: #6b7280;
+
+    font-size: 18px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+    .kitchen-board {
+        grid-template-columns: 1fr;
+    }
+
+    .kitchen-column {
+        min-height: 400px;
+    }
+
+}
+
+
+/* add */
+.o_kitchen_screen {
+    min-height: 100vh;
+    padding: 24px;
+    background: #f4f6f8;
+}
+
+.kitchen-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.kitchen-header h1 {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.kitchen-section {
+    margin-bottom: 35px;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+    font-size: 24px;
+}
+
+.section-title.new {
+    color: #d97706;
+}
+
+.section-title.preparing {
+    color: #2563eb;
+}
+
+.section-title.ready {
+    color: #16a34a;
+}
+
+.section-title .badge {
+    background: #343a40;
+    color: white;
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 14px;
+}
+
+.orders-grid {
+    display: grid;
+    grid-template-columns: repeat(
+        auto-fill,
+        minmax(320px, 1fr)
+    );
+    gap: 20px;
+}
+
+.kitchen-order {
+    background: white;
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.10);
+    border-left: 6px solid #999;
+}
+
+.new-order {
+    border-left-color: #f59e0b;
+}
+
+.preparing-order {
+    border-left-color: #2563eb;
+}
+
+.ready-order {
+    border-left-color: #16a34a;
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 18px;
+}
+
+.order-header h2 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.customer {
+    margin-top: 5px;
+    color: #666;
+}
+
+.order-time {
+    color: #777;
+    font-size: 14px;
+}
+
+.order-lines {
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    padding: 12px 0;
+    margin-bottom: 18px;
+}
+
+.order-line {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    font-size: 18px;
+}
+
+.quantity {
+    min-width: 45px;
+    font-weight: 700;
+    color: #dc2626;
+}
+
+.product-name {
+    font-weight: 500;
+}
+
+.order-actions {
+    margin-top: 10px;
+}
+
+.order-actions button {
+    min-height: 55px;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.empty-orders {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    text-align: center;
+    color: #888;
+}

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<odoo>
+
+    <record id="action_kitchen_screen" model="ir.actions.client">
+
+        <field name="name">Kitchen Display</field>
+
+        <field name="tag">tindahan_pos.kitchen_screen</field>
+
+    </record>
+
+
+    <menuitem
+        id="menu_kitchen_screen"
+        name="Kitchen"
+        action="action_kitchen_screen"
+        sequence="50"
+    />
+
+</odoo>

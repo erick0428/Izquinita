@@ -1,0 +1,488 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<templates xml:space="preserve">
+
+    <t
+        t-name="tindahan_pos.KitchenScreen"
+        owl="1"
+    >
+
+        <div class="kitchen-screen">
+
+            <!-- ================================================= -->
+            <!-- HEADER -->
+            <!-- ================================================= -->
+
+            <header class="kitchen-header">
+
+                <div class="kitchen-title">
+
+                    <span class="kitchen-icon">
+                        🍳
+                    </span>
+
+                    <div>
+                        <h1>
+                            Kitchen Display
+                        </h1>
+
+                        <div class="kitchen-subtitle">
+                            Tindahan POS
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="kitchen-status">
+
+                    <span class="live-dot"></span>
+
+                    <span>
+                        LIVE
+                    </span>
+
+                    <span
+                        t-if="state.lastUpdate"
+                        class="last-update"
+                    >
+                        Updated
+                        <t t-esc="state.lastUpdate"/>
+                    </span>
+
+                </div>
+
+            </header>
+
+
+            <!-- ================================================= -->
+            <!-- LOADING -->
+            <!-- ================================================= -->
+
+            <div
+                t-if="state.loading"
+                class="kitchen-loading"
+            >
+                Loading kitchen orders...
+            </div>
+
+
+            <!-- ================================================= -->
+            <!-- BOARD -->
+            <!-- ================================================= -->
+
+            <main
+                t-if="!state.loading"
+                class="kitchen-board"
+            >
+
+                <!-- ============================================= -->
+                <!-- NEW -->
+                <!-- ============================================= -->
+
+                <section class="kitchen-column new-column">
+
+                    <div class="column-header">
+
+                        <div>
+                            <h2>
+                                NEW
+                            </h2>
+
+                            <span class="column-description">
+                                Waiting to prepare
+                            </span>
+                        </div>
+
+                        <span class="order-count">
+                            <t t-esc="newOrders.length"/>
+                        </span>
+
+                    </div>
+
+
+                    <div class="orders-container">
+
+                        <div
+                            t-if="!newOrders.length"
+                            class="empty-column"
+                        >
+                            <div class="empty-icon">
+                                ✓
+                            </div>
+
+                            <div>
+                                No new orders
+                            </div>
+                        </div>
+
+
+                        <t
+                            t-foreach="newOrders"
+                            t-as="order"
+                            t-key="order.id"
+                        >
+
+                            <article class="order-card new-card">
+
+                                <div class="order-card-header">
+
+                                    <div>
+
+                                        <div class="order-number">
+                                            #<t t-esc="order.name"/>
+                                        </div>
+
+                                        <div class="customer-name">
+                                            <t
+                                                t-esc="order.customer_name"
+                                            />
+                                        </div>
+
+                                    </div>
+
+                                    <div class="order-time">
+                                        <t
+                                            t-esc="
+                                                formatTime(
+                                                    order.paid_at
+                                                )
+                                            "
+                                        />
+                                    </div>
+
+                                </div>
+
+
+                                <div class="order-items">
+
+                                    <t
+                                        t-foreach="order.items"
+                                        t-as="item"
+                                        t-key="item.product_id"
+                                    >
+
+                                        <div class="order-item">
+
+                                            <div class="item-quantity">
+                                                <t
+                                                    t-esc="
+                                                        formatQuantity(
+                                                            item.quantity
+                                                        )
+                                                    "
+                                                />
+                                                ×
+                                            </div>
+
+                                            <div class="item-name">
+                                                <t
+                                                    t-esc="item.name"
+                                                />
+                                            </div>
+
+                                        </div>
+
+                                    </t>
+
+                                </div>
+
+
+                                <button
+                                    class="kitchen-action start-button"
+                                    t-on-click="
+                                        () => startPreparing(order)
+                                    "
+                                >
+                                    START PREPARING
+                                </button>
+
+                            </article>
+
+                        </t>
+
+                    </div>
+
+                </section>
+
+
+                <!-- ============================================= -->
+                <!-- PREPARING -->
+                <!-- ============================================= -->
+
+                <section class="kitchen-column preparing-column">
+
+                    <div class="column-header">
+
+                        <div>
+                            <h2>
+                                PREPARING
+                            </h2>
+
+                            <span class="column-description">
+                                Currently cooking
+                            </span>
+                        </div>
+
+                        <span class="order-count">
+                            <t t-esc="preparingOrders.length"/>
+                        </span>
+
+                    </div>
+
+
+                    <div class="orders-container">
+
+                        <div
+                            t-if="!preparingOrders.length"
+                            class="empty-column"
+                        >
+                            <div class="empty-icon">
+                                🍳
+                            </div>
+
+                            <div>
+                                Nothing cooking
+                            </div>
+                        </div>
+
+
+                        <t
+                            t-foreach="preparingOrders"
+                            t-as="order"
+                            t-key="order.id"
+                        >
+
+                            <article
+                                class="
+                                    order-card
+                                    preparing-card
+                                "
+                            >
+
+                                <div class="order-card-header">
+
+                                    <div>
+
+                                        <div class="order-number">
+                                            #<t t-esc="order.name"/>
+                                        </div>
+
+                                        <div class="customer-name">
+                                            <t
+                                                t-esc="
+                                                    order.customer_name
+                                                "
+                                            />
+                                        </div>
+
+                                    </div>
+
+                                    <div class="order-time">
+                                        <t
+                                            t-esc="
+                                                formatTime(
+                                                    order.paid_at
+                                                )
+                                            "
+                                        />
+                                    </div>
+
+                                </div>
+
+
+                                <div class="order-items">
+
+                                    <t
+                                        t-foreach="order.items"
+                                        t-as="item"
+                                        t-key="item.product_id"
+                                    >
+
+                                        <div class="order-item">
+
+                                            <div class="item-quantity">
+                                                <t
+                                                    t-esc="
+                                                        formatQuantity(
+                                                            item.quantity
+                                                        )
+                                                    "
+                                                />
+                                                ×
+                                            </div>
+
+                                            <div class="item-name">
+                                                <t
+                                                    t-esc="item.name"
+                                                />
+                                            </div>
+
+                                        </div>
+
+                                    </t>
+
+                                </div>
+
+
+                                <button
+                                    class="
+                                        kitchen-action
+                                        ready-button
+                                    "
+                                    t-on-click="
+                                        () => markReady(order)
+                                    "
+                                >
+                                    MARK READY
+                                </button>
+
+                            </article>
+
+                        </t>
+
+                    </div>
+
+                </section>
+
+
+                <!-- ============================================= -->
+                <!-- READY -->
+                <!-- ============================================= -->
+
+                <section class="kitchen-column ready-column">
+
+                    <div class="column-header">
+
+                        <div>
+                            <h2>
+                                READY
+                            </h2>
+
+                            <span class="column-description">
+                                Ready for pickup
+                            </span>
+                        </div>
+
+                        <span class="order-count">
+                            <t t-esc="readyOrders.length"/>
+                        </span>
+
+                    </div>
+
+
+                    <div class="orders-container">
+
+                        <div
+                            t-if="!readyOrders.length"
+                            class="empty-column"
+                        >
+                            <div class="empty-icon">
+                                ✓
+                            </div>
+
+                            <div>
+                                No ready orders
+                            </div>
+                        </div>
+
+
+                        <t
+                            t-foreach="readyOrders"
+                            t-as="order"
+                            t-key="order.id"
+                        >
+
+                            <article
+                                class="
+                                    order-card
+                                    ready-card
+                                "
+                            >
+
+                                <div class="order-card-header">
+
+                                    <div>
+
+                                        <div class="order-number">
+                                            #<t t-esc="order.name"/>
+                                        </div>
+
+                                        <div class="customer-name">
+                                            <t
+                                                t-esc="
+                                                    order.customer_name
+                                                "
+                                            />
+                                        </div>
+
+                                    </div>
+
+                                    <div class="ready-label">
+                                        READY
+                                    </div>
+
+                                </div>
+
+
+                                <div class="order-items">
+
+                                    <t
+                                        t-foreach="order.items"
+                                        t-as="item"
+                                        t-key="item.product_id"
+                                    >
+
+                                        <div class="order-item">
+
+                                            <div class="item-quantity">
+                                                <t
+                                                    t-esc="
+                                                        formatQuantity(
+                                                            item.quantity
+                                                        )
+                                                    "
+                                                />
+                                                ×
+                                            </div>
+
+                                            <div class="item-name">
+                                                <t
+                                                    t-esc="item.name"
+                                                />
+                                            </div>
+
+                                        </div>
+
+                                    </t>
+
+                                </div>
+
+
+                                <button
+                                    class="
+                                        kitchen-action
+                                        complete-button
+                                    "
+                                    t-on-click="
+                                        () => completeOrder(order)
+                                    "
+                                >
+                                    DONE
+                                </button>
+
+                            </article>
+
+                        </t>
+
+                    </div>
+
+                </section>
+
+            </main>
+
+        </div>
+
+    </t>
+
+</templates>

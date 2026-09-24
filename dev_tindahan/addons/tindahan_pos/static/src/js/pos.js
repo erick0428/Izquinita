@@ -240,7 +240,7 @@ export class TindahanPOS extends Component {
 
             alert("Please add a product first.");
 
-            return;
+            return null;
         }
 
         const lines = this.state.cart.map(line => {
@@ -256,31 +256,57 @@ export class TindahanPOS extends Component {
 
         });
 
+        try {
 
-        await rpc(
-            "/web/dataset/call_kw",
-            {
-                model: "tindahan_pos.pos",
-                method: "create",
-                args: [
-                    {
-                        session_id: this.state.session.id,
-                        name: "New",
-                        customer_name: this.state.customer_name || "Walk-in Customer",
-                        cash: cash,
-                        change: change,
-                        line_ids: lines,
-                    },
-                ],
-                kwargs: {},
-            }
-        );
+            const order = await rpc(
+                "/web/dataset/call_kw",
+                {
+                    model: "tindahan_pos.pos",
 
+                    method: "create_pos_order",
 
-        alert("Order saved!");
-        await this.loadSession();
-        this.clearCart();
+                    args: [
+                        {
+                            customer_name:
+                                this.state.customer_name ||
+                                "Walk-in Customer",
+
+                            cash: cash,
+
+                            change: change,
+
+                            line_ids: lines,
+                            kitchen_status: "new",
+                        },
+                    ],
+
+                    kwargs: {},
+                }
+            );
+
+            console.log(
+                "ORDER SENT TO KITCHEN:",
+                order
+            );
+
+            return order;
+
+        } catch (error) {
+
+            console.error(
+                "Failed to save order:",
+                error
+            );
+
+            alert(
+                "Failed to save order."
+            );
+
+            return null;
+        }
     }
+
+
 
     async payOrder() {
 
@@ -307,14 +333,15 @@ export class TindahanPOS extends Component {
         const change = this.state.change;
 
         // -------------------------------------------------
-        // SAVE RECEIPT DATA BEFORE SAVING/CLEARING ORDER
+        // SAVE RECEIPT DATA
         // -------------------------------------------------
 
         this.state.receipt = {
             order_name: "POS-" + Date.now(),
 
             customer_name:
-                this.state.customer_name || "Walk-in Customer",
+                this.state.customer_name ||
+                "Walk-in Customer",
 
             date: new Date().toLocaleString(),
 
@@ -336,7 +363,14 @@ export class TindahanPOS extends Component {
         // SAVE ORDER
         // -------------------------------------------------
 
-        await this.saveOrder(cash, change);
+        const order = await this.saveOrder(cash, change);
+
+        if (!order) {
+            return;
+        }
+
+        // Use actual Odoo order number
+        this.state.receipt.order_name = order.name;
 
         // -------------------------------------------------
         // SHOW RECEIPT
@@ -344,10 +378,10 @@ export class TindahanPOS extends Component {
 
         this.state.showReceipt = true;
 
-        // Wait for OWL to render the receipt
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve =>
+            setTimeout(resolve, 100)
+        );
 
-        // Open browser print dialog
         window.print();
 
         // -------------------------------------------------
@@ -364,9 +398,13 @@ export class TindahanPOS extends Component {
         this.state.change = 0;
         this.state.customer_name = "";
 
-        // Optional notification
-        // alert(`Change: ${this.formatPrice(change)}`);
+        // -------------------------------------------------
+        // CLEAR CART
+        // -------------------------------------------------
+
+        this.clearCart();
     }
+
 
     async loadSession() {
         const sessions = await rpc("/web/dataset/call_kw", {
