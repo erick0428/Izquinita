@@ -69,7 +69,12 @@
                                     class="product-name"
                                     t-esc="product.name"
                                 />
-
+                                <div
+                                        class="product-desc"
+                                        t-if="product.description"
+                                    >
+                                        <t t-esc="product.description"/>
+                                    </div>
                                 <div class="product-price">
                                     <t t-esc="this.formatPrice(product.srp)"/>
                                 </div>
@@ -90,7 +95,16 @@
 
                 <div class="order-header">
 
-                    <h1>Current Order</h1>
+                    <!-- <h1>Current Order</h1> -->
+                    <div class="customer-section">
+
+                        <input
+                            type="text"
+                            placeholder="Customer Name"
+                            t-model="state.customer_name"
+                        />
+
+                    </div>
 
                     <div class="session-bar">
 
@@ -121,15 +135,7 @@
 
                     </div>
 
-                    <div class="customer-section">
 
-                        <input
-                            type="text"
-                            placeholder="Customer Name"
-                            t-model="state.customer_name"
-                        />
-
-                    </div>
 
                 </div>
 
