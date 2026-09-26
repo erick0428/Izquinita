@@ -3,7 +3,7 @@
 import { Component, onMounted, onWillUnmount, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
-
+// import { deserializeDateTime } from "@web/core/l10n/dates";
 console.log("🔥🔥 KITCHEN JS FILE LOADED 🔥🔥");
 export class KitchenScreen extends Component {
 
@@ -181,18 +181,34 @@ export class KitchenScreen extends Component {
     // =====================================================
 
     formatTime(dateString) {
-
         if (!dateString) {
             return "";
         }
 
-        const date = new Date(dateString);
+        try {
+            // Odoo format: "YYYY-MM-DD HH:mm:ss"
+            const normalized = String(dateString).trim().replace(" ", "T");
 
-        return date.toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit"
-        });
+            // Odoo Datetime is UTC
+            const date = new Date(normalized + "Z");
+
+            if (isNaN(date.getTime())) {
+                console.warn("Invalid paid_at:", dateString);
+                return "";
+            }
+
+            return date.toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+            });
+        } catch (error) {
+            console.error("formatTime error:", dateString, error);
+            return "";
+        }
     }
+
+
 
     // =====================================================
     // FORMAT QUANTITY

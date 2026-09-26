@@ -467,27 +467,26 @@ export class TindahanPOS extends Component {
         );
     }
 
-    async closeSession() {
-        if (!this.state.session) {
-            alert("No active session.");
-            return;
-        }
+    // async closeSession() {
+    //     if (!this.state.session) {
+    //         alert("No active session.");
+    //         return;
+    //     }
    
-        await rpc("/web/dataset/call_kw", {
-            model: "tindahan_pos.session",
-            method: "write",
-            args: [
-                [this.state.session.id],
-                { state: "closed" }
-            ],
-            kwargs: {}, // always included
-        });
+    //     await rpc("/web/dataset/call_kw", {
+    //         model: "tindahan_pos.session",
+    //         method: "write",
+    //         args: [
+    //             [this.state.session.id],
+    //             { state: "closed" }
+    //         ],
+    //         kwargs: {}, // always included
+    //     });
        
-        this.state.session = null;
-    }
+    //     this.state.session = null;
+    // }
 
     async confirmCloseSession() {
-
         if (!this.state.session) {
             alert("No active POS session.");
             return;
@@ -505,87 +504,42 @@ export class TindahanPOS extends Component {
         const sessionId = this.state.session.id;
 
         try {
-
-            // Get latest session data
-            const data = await this.call(
+            const report = await this.call(
                 "tindahan_pos.session",
-                "read",
+                "close_session",
                 [
                     [sessionId],
-                    [
-                        "opening_cash",
-                        "total_sales"
-                    ]
+                    actualCash,
                 ]
             );
 
-            if (!data || !data.length) {
-                alert("Session not found.");
+            
+
+            console.log("Close session result:", report);
+
+            if (!report) {
+                alert("Failed to close POS session.");
                 return;
             }
 
-            const session = data[0];
-
-            const openingCash = session.opening_cash || 0;
-            const totalSales = session.total_sales || 0;
-
-            const expectedCash =
-                openingCash + totalSales;
-
-            const difference =
-                actualCash - expectedCash;
-
-
-            // ==========================================
-            // CLOSE SESSION IN DATABASE
-            // ==========================================
-
-            await this.call(
-                "tindahan_pos.session",
-                "write",
-                [
-                    [sessionId],
-                    {
-                        closing_cash: expectedCash,
-                        closing_input: actualCash,
-                        state: "closed",
-                    }
-                ]
-            );
-
-
-            // ==========================================
-            // CREATE CLOSING REPORT
-            // ==========================================
-
             this.state.report = {
-                opening_cash: openingCash,
-                total_sales: totalSales,
-                expected_cash: expectedCash,
-                closing_input: actualCash,
-                difference: difference,
+                opening_cash: report.opening_cash,
+                total_sales: report.total_sales,
+                expected_cash: report.expected_cash,
+                closing_input: report.closing_input,
+                difference: report.difference,
             };
 
-
-            // ==========================================
-            // IMPORTANT:
-            // REMOVE ACTIVE SESSION FROM UI
-            // ==========================================
-
             this.state.session = null;
-
-
-            // Close the closing dialog
             this.state.showCloseDialog = false;
-
-            // Show report
             this.state.showReport = true;
 
-
-            console.log("POS SESSION CLOSED:", sessionId);
+            console.log(
+                "POS SESSION CLOSED:",
+                sessionId
+            );
 
         } catch (error) {
-
             console.error(
                 "Error closing POS session:",
                 error
@@ -596,20 +550,61 @@ export class TindahanPOS extends Component {
             );
         }
     }
-    openCloseDialog() {
+
+    async openCloseDialog() {
         console.log("CLOSE POS clicked");
-        console.log("Current session:", this.state.session);
 
         if (!this.state.session) {
             alert("No active POS session.");
             return;
         }
 
-        this.state.closingCashInput = "";
-        this.state.showCloseDialog = true;
+        try {
+            // Get the latest session data
+            const sessions = await this.call(
+                "tindahan_pos.session",
+                "search_read",
+                [
+                    [
+                        ["id", "=", this.state.session.id]
+                    ],
+                    [
+                        "id",
+                        "name",
+                        "opening_cash",
+                        "total_sales"
+                    ]
+                ]
+            );
 
-        console.log("showCloseDialog:", this.state.showCloseDialog);
+            if (!sessions.length) {
+                alert("Session not found.");
+                return;
+            }
+
+            // Replace old session data with latest data
+            this.state.session = sessions[0];
+
+            console.log(
+                "Updated session:",
+                this.state.session
+            );
+
+            this.state.closingCashInput = "";
+            this.state.showCloseDialog = true;
+
+        } catch (error) {
+            console.error(
+                "Failed to load latest session:",
+                error
+            );
+
+            alert(
+                "Failed to load latest session data."
+            );
+        }
     }
+
     closeReport() {
         this.state.showReport = false;
         this.state.session = null;

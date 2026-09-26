@@ -35,38 +35,40 @@ class POSSession(models.Model):
         compute="_compute_total_sales",
         store=True
     )
+    date = fields.Datetime(
+         string='Date',
+         readonly=True,
+         copy=False
+     )   
+    
     def _generate_name(self):
         user = self.env.user
-        today = datetime.now().date()
+        today = fields.Date.today()
 
         sequence = self.env["tindahan_pos.sequence"].search([
             ("name", "=", "Session"),
             ("user_id", "=", user.id),
         ], limit=1)
 
-        # Create sequence per user if not exists
         if not sequence:
             sequence = self.env["tindahan_pos.sequence"].create({
-                "name": "Sales",
+                "name": "Session",
                 "user_id": user.id,
                 "date": today,
                 "count": 0,
             })
 
-        # Reset daily per user
+        # Reset counter every day
         if sequence.date != today:
-            sequence.date = today
-            sequence.count = 0
+            sequence.write({
+                "date": today,
+                "count": 0,
+            })
 
-        while True:
+        sequence.count += 1
 
+        return f"{today.strftime('%y%m%d')}-{user.id}-{sequence.count:03d}"
 
-            name = f"{datetime.now().strftime('%y%m%d')}-{user.id}"
-
-            if not self.search([('name', '=', name)]):
-                break
-
-        return name
     
     @api.model_create_multi
     def create(self, vals_list):
@@ -123,3 +125,40 @@ class POSSession(models.Model):
             "closing_input": self.closing_input,
             "difference": self.difference,
         }
+        
+
+    def close_session(self, actual_cash):
+        self.ensure_one()
+
+        if self.state != 'open':
+            raise ValidationError(
+                "Only an open session can be closed."
+            )
+
+        total_sales = self.total_sales
+
+        expected_cash = (
+            self.opening_cash +
+            total_sales
+        )
+
+        difference = (
+            actual_cash -
+            expected_cash
+        )
+
+        self.write({
+            'total_sales': total_sales,
+            'closing_cash': expected_cash,
+            'closing_input': actual_cash,
+            'state': 'closed',
+        })
+
+        return {
+            'opening_cash': self.opening_cash,
+            'total_sales': total_sales,
+            'expected_cash': expected_cash,
+            'closing_input': actual_cash,
+            'difference': difference,
+        }
+
