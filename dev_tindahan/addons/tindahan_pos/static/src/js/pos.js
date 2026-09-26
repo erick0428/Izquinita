@@ -30,6 +30,7 @@ export class TindahanPOS extends Component {
 
             openingCashInput: "",
             closingCashInput: "",
+            showCashKeypad: false,
 
             showCloseDialog: false,
             showReport: false,
@@ -61,39 +62,95 @@ export class TindahanPOS extends Component {
         });
     }
     handlePaymentKeyboard(event) {
-        if (!this.state.showPaymentModal) {
+        if (
+            !this.state.showPaymentModal &&
+            !this.state.showCashKeypad
+        ) {
             return;
         }
 
-        if (/^[0-9]$/.test(event.key)) {
-            this.pressKey(event.key);
-            event.preventDefault();
-            return;
+        // =========================
+        // PAYMENT MODAL
+        // =========================
+
+        if (this.state.showPaymentModal) {
+
+            if (/^[0-9]$/.test(event.key)) {
+                this.pressKey(event.key);
+                event.preventDefault();
+                return;
+            }
+
+            if (
+                event.key === "." ||
+                event.key === "Decimal"
+            ) {
+                this.pressKey(".");
+                event.preventDefault();
+                return;
+            }
+
+            if (event.key === "Backspace") {
+                this.pressKey("⌫");
+                event.preventDefault();
+                return;
+            }
+
+            if (event.key === "Enter") {
+                this.confirmPayment();
+                event.preventDefault();
+                return;
+            }
+
+            if (event.key === "Escape") {
+                this.closePaymentModal();
+                event.preventDefault();
+                return;
+            }
         }
 
-        if (event.key === ".") {
-            this.pressKey(".");
-            event.preventDefault();
-            return;
-        }
 
-        if (event.key === "Backspace") {
-            this.pressKey("⌫");
-            event.preventDefault();
-            return;
-        }
+        // =========================
+        // CASH COUNTED KEYPAD
+        // =========================
 
-        if (event.key === "Enter") {
-            this.confirmPayment();
-            event.preventDefault();
-            return;
-        }
+        if (this.state.showCashKeypad) {
 
-        if (event.key === "Escape") {
-            this.closePaymentModal();
-            event.preventDefault();
+            if (/^[0-9]$/.test(event.key)) {
+                this.pressClosingCashKey(event.key);
+                event.preventDefault();
+                return;
+            }
+
+            if (
+                event.key === "." ||
+                event.key === "Decimal"
+            ) {
+                this.pressClosingCashKey(".");
+                event.preventDefault();
+                return;
+            }
+
+            if (event.key === "Backspace") {
+                this.pressClosingCashKey("⌫");
+                event.preventDefault();
+                return;
+            }
+
+            if (event.key === "Enter") {
+                this.closeCashKeypad();
+                event.preventDefault();
+                return;
+            }
+
+            if (event.key === "Escape") {
+                this.closeCashKeypad();
+                event.preventDefault();
+                return;
+            }
         }
     }
+
 
     openPaymentModal() {
         if (!this.state.cart || !this.state.cart.length) {
@@ -108,9 +165,13 @@ export class TindahanPOS extends Component {
     }
     closePaymentModal() {
         this.state.showPaymentModal = false;
+        this.state.cash = 0;
+        this.state.cashInput = 0;
+        this.state.change = 0;
     }
     clearPayment() {
         this.state.cash = 0;
+        this.state.cashInput = 0;
         this.state.change = 0;
     }
 
@@ -151,8 +212,46 @@ export class TindahanPOS extends Component {
         );
     }
 
+    openCashKeypad() {
+        this.state.showCashKeypad = true;
+    }
 
+    closeCashKeypad() {
+        this.state.showCashKeypad = false;
+    }
 
+    clearClosingCash() {
+        this.state.closingCashInput = "";
+    }
+    pressClosingCashKey(key) {
+        let value = String(
+            this.state.closingCashInput || ""
+        );
+
+        if (key === "⌫") {
+            value = value.slice(0, -1);
+        }
+
+        else if (key === ".") {
+            // Only one decimal point
+            if (!value.includes(".")) {
+                value = value === ""
+                    ? "0."
+                    : value + ".";
+            }
+        }
+
+        else {
+            // Prevent unnecessary leading zeros
+            if (value === "0") {
+                value = key;
+            } else {
+                value += key;
+            }
+        }
+
+        this.state.closingCashInput = value;
+    }
 
     computeChange() {
         const cash = parseFloat(this.state.cash) || 0;
