@@ -237,7 +237,6 @@
                 </div>
 
 
-                
                 <!-- FOOTER -->
                 <div class="order-footer">
 
@@ -266,6 +265,28 @@
 
                     </div>
 
+
+                    <!-- KEYPAD -->
+                    <div class="keypad">
+
+                        <t
+                            t-foreach="['7','8','9','4','5','6','1','2','3','0','.','⌫']"
+                            t-as="key"
+                            t-key="key"
+                        >
+
+                            <button
+                                class="key"
+                                t-on-click="() => this.pressKey(key)"
+                            >
+                                <t t-esc="key"/>
+                            </button>
+
+                        </t>
+
+                    </div>
+
+
                     <div class="order-actions">
 
                         <button
@@ -277,7 +298,7 @@
 
                         <button
                             class="pay-button"
-                            t-on-click="openPaymentModal"
+                            t-on-click="payOrder"
                         >
                             PAY
                         </button>
@@ -285,117 +306,6 @@
                     </div>
 
                 </div>
-
-
-                <!-- PAYMENT MODAL -->
-                <t t-if="state.showPaymentModal">
-
-                    <div class="payment-overlay">
-
-                        <div class="payment-modal">
-
-                            <div class="payment-header">
-                                <h2>Payment</h2>
-
-                                <button
-                                    class="payment-close"
-                                    t-on-click="closePaymentModal"
-                                >
-                                    ×
-                                </button>
-                            </div>
-
-
-                            <!-- TOTAL -->
-                            <div class="payment-summary">
-
-                                <div class="payment-row">
-                                    <span>Total</span>
-
-                                    <strong>
-                                        <t t-esc="
-                                            this.formatPrice(state.total)
-                                        "/>
-                                    </strong>
-                                </div>
-
-
-                                <!-- CASH -->
-                                <div class="payment-row">
-
-                                    <span>Cash</span>
-
-                                    <strong>
-                                        <t t-esc="
-                                            this.formatPrice(state.cash || 0)
-                                        "/>
-                                    </strong>
-
-                                </div>
-
-
-                                <!-- CHANGE -->
-                                <div class="payment-row">
-
-                                    <span>Change</span>
-
-                                    <strong class="change-value">
-                                        <t t-esc="
-                                            this.formatPrice(state.change || 0)
-                                        "/>
-                                    </strong>
-
-                                </div>
-
-                            </div>
-
-
-                            <!-- KEYPAD -->
-                            <div class="payment-keypad">
-
-                                <t
-                                    t-foreach="['7','8','9','4','5','6','1','2','3','0','.','⌫']"
-                                    t-as="key"
-                                    t-key="key"
-                                >
-
-                                    <button
-                                        class="payment-key"
-                                        t-on-click="() => this.pressKey(key)"
-                                    >
-                                        <t t-esc="key"/>
-                                    </button>
-
-                                </t>
-
-                            </div>
-
-
-                            <!-- ACTIONS -->
-                            <div class="payment-actions">
-
-                                <button
-                                    class="payment-clear"
-                                    t-on-click="clearPayment"
-                                >
-                                    CLEAR
-                                </button>
-
-                                <button
-                                    class="payment-confirm"
-                                    t-on-click="confirmPayment"
-                                >
-                                    CONFIRM PAYMENT
-                                </button>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </t>
-
 
             </div>
 

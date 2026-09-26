@@ -36,10 +36,12 @@ class POSSession(models.Model):
         store=True
     )
     date = fields.Datetime(
-         string='Date',
-         readonly=True,
-         copy=False
-     )   
+        string='Date',
+        readonly=True,
+        default=fields.Datetime.now,
+        copy=False
+    )
+   
     
     def _generate_name(self):
         user = self.env.user

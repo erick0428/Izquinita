@@ -20,6 +20,7 @@ export class TindahanPOS extends Component {
 
             cash: "",
             change: 0,
+            showPaymentModal: false,
             customer_name: "",
 
             session: null,
@@ -30,6 +31,8 @@ export class TindahanPOS extends Component {
             showCloseDialog: false,
             showReport: false,
             report: null,
+
+       
         });
 
 
@@ -40,32 +43,47 @@ export class TindahanPOS extends Component {
         });
     }
 
+    openPaymentModal() {
+        if (!this.state.cart || !this.state.cart.length) {
+            alert("Cart is empty.");
+            return;
+        }
+
+        this.state.cash = 0;
+        this.state.change = 0;
+        this.state.showPaymentModal = true;
+    }
+    closePaymentModal() {
+        this.state.showPaymentModal = false;
+    }
+    clearPayment() {
+        this.state.cash = 0;
+        this.state.change = 0;
+    }
 
     // ✅ MOVE THIS INSIDE
     pressKey(key) {
-
-        if (key === "C") {
-            this.state.cash = "";
-            this.state.change = 0;
-            return;
-        }
+        let cash = String(this.state.cash || "");
 
         if (key === "⌫") {
-            this.state.cash = this.state.cash.slice(0, -1);
-            this.computeChange();
-            return;
-        }
-
-        if (key === "." && this.state.cash.includes(".")) return;
-
-        if (this.state.cash === "0" && key !== ".") {
-            this.state.cash = key;
+            cash = cash.slice(0, -1);
+        } else if (key === ".") {
+            if (!cash.includes(".")) {
+                cash += ".";
+            }
         } else {
-            this.state.cash += key;
+            cash += key;
         }
 
-        this.computeChange();
+        this.state.cash = parseFloat(cash) || 0;
+
+        this.state.change =
+            Math.max(
+                0,
+                this.state.cash - this.state.total
+            );
     }
+
 
     computeChange() {
         const cash = parseFloat(this.state.cash) || 0;
@@ -604,6 +622,24 @@ export class TindahanPOS extends Component {
             );
         }
     }
+    async confirmPayment() {
+        const total = this.state.total || 0;
+        const cash = this.state.cash || 0;
+
+        if (cash < total) {
+            alert("Insufficient cash.");
+            return;
+        }
+
+        this.state.change = cash - total;
+
+        // Your existing payOrder logic
+        await this.payOrder();
+
+        this.state.showPaymentModal = false;
+    }
+
+
 
     closeReport() {
         this.state.showReport = false;
