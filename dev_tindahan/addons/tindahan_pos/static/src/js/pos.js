@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
-import { Component, onWillStart, useState } from "@odoo/owl";
+import { Component, onWillStart, useState,onMounted,
+    onWillUnmount, } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { rpc } from "@web/core/network/rpc";
 
@@ -18,6 +19,8 @@ export class TindahanPOS extends Component {
             search: "",
             activeVariant: null,
 
+            
+            cashInput: "",
             cash: "",
             change: 0,
             showPaymentModal: false,
@@ -35,12 +38,61 @@ export class TindahanPOS extends Component {
        
         });
 
+        this.handlePaymentKeyboard =
+            this.handlePaymentKeyboard.bind(this);
 
+        onMounted(() => {
+            window.addEventListener(
+                "keydown",
+                this.handlePaymentKeyboard
+            );
+        });
+
+        onWillUnmount(() => {
+            window.removeEventListener(
+                "keydown",
+                this.handlePaymentKeyboard
+            );
+        });
 
         onWillStart(async () => {
             await this.loadProducts();
             await this.loadSession(); // 🔥 important
         });
+    }
+    handlePaymentKeyboard(event) {
+        if (!this.state.showPaymentModal) {
+            return;
+        }
+
+        if (/^[0-9]$/.test(event.key)) {
+            this.pressKey(event.key);
+            event.preventDefault();
+            return;
+        }
+
+        if (event.key === ".") {
+            this.pressKey(".");
+            event.preventDefault();
+            return;
+        }
+
+        if (event.key === "Backspace") {
+            this.pressKey("⌫");
+            event.preventDefault();
+            return;
+        }
+
+        if (event.key === "Enter") {
+            this.confirmPayment();
+            event.preventDefault();
+            return;
+        }
+
+        if (event.key === "Escape") {
+            this.closePaymentModal();
+            event.preventDefault();
+        }
     }
 
     openPaymentModal() {
@@ -50,6 +102,7 @@ export class TindahanPOS extends Component {
         }
 
         this.state.cash = 0;
+        this.state.cashInput = 0;
         this.state.change = 0;
         this.state.showPaymentModal = true;
     }
@@ -63,26 +116,42 @@ export class TindahanPOS extends Component {
 
     // ✅ MOVE THIS INSIDE
     pressKey(key) {
-        let cash = String(this.state.cash || "");
+        let value = this.state.cashInput || "";
 
         if (key === "⌫") {
-            cash = cash.slice(0, -1);
-        } else if (key === ".") {
-            if (!cash.includes(".")) {
-                cash += ".";
-            }
-        } else {
-            cash += key;
+            value = value.slice(0, -1);
         }
 
-        this.state.cash = parseFloat(cash) || 0;
+        else if (key === ".") {
+            // Only allow one decimal point
+            if (!value.includes(".")) {
+                value = value === "" ? "0." : value + ".";
+            }
+        }
 
-        this.state.change =
-            Math.max(
-                0,
-                this.state.cash - this.state.total
-            );
+        else if (/^[0-9]$/.test(key)) {
+            // Avoid unnecessary leading zeros
+            if (value === "0") {
+                value = key;
+            } else {
+                value += key;
+            }
+        }
+
+        this.state.cashInput = value;
+
+        // Numeric value only for calculations
+        const cash = parseFloat(value) || 0;
+
+        this.state.cash = cash;
+
+        this.state.change = Math.max(
+            0,
+            cash - (this.state.total || 0)
+        );
     }
+
+
 
 
     computeChange() {

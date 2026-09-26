@@ -325,11 +325,9 @@
 
                                     <span>Cash</span>
 
-                                    <strong>
-                                        <t t-esc="
-                                            this.formatPrice(state.cash || 0)
-                                        "/>
-                                    </strong>
+                                <strong>
+                                    <t t-esc="state.cashInput || '0.00'"/>
+                                </strong>
 
                                 </div>
 
