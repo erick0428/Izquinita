@@ -8,10 +8,70 @@
 
             <!-- LEFT -->
             <div class="pos-products">
-
+<!-- 
                 <div class="pos-header">
                     <h1>Products</h1>
+                </div> -->
+                <!-- ORDER TYPE -->
+                <div class="order-type">
+
+                    <button
+                        class="order-type-button"
+                        t-att-class="state.orderType === 'dine_in' ? 'active' : ''"
+                        t-on-click="() => this.setOrderType('dine_in')"
+                    >
+                        🍽️
+                        <span>Dine-in</span>
+                    </button>
+
+                    <button
+                        class="order-type-button"
+                        t-att-class="state.orderType === 'takeout' ? 'active' : ''"
+                        t-on-click="() => this.setOrderType('takeout')"
+                    >
+                        🥡
+                        <span>Takeout</span>
+                    </button>
+
+                    <button
+                        class="order-type-button"
+                        t-att-class="state.orderType === 'delivery' ? 'active' : ''"
+                        t-on-click="() => this.setOrderType('delivery')"
+                    >
+                        🚗
+                        <span>Delivery</span>
+                    </button>
+
                 </div>
+
+                <!-- DELIVERY FEE -->
+                <t t-if="state.orderType === 'delivery'">
+
+                    <div class="delivery-fee">
+
+                        <label for="delivery_fee">
+                            Delivery Fee
+                        </label>
+
+                        <div class="delivery-fee-input">
+
+                            <span>₱</span>
+
+                            <input
+                                id="delivery_fee"
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                t-att-value="state.deliveryFee"
+                                t-on-input="setDeliveryFee"
+                                placeholder="0.00"
+                            />
+
+                        </div>
+
+                    </div>
+
+                </t>
 
                 <div class="pos-search">
                     <input
@@ -139,6 +199,8 @@
 
                 </div>
 
+
+                
 
                 <!-- CART -->
                 <div class="cart">
@@ -728,8 +790,21 @@
                         </t>
 
                     </div>
-
+                    <div>
+                        <span>Sub Total</span>
+                        <strong>
+                            <t t-esc="this.formatPrice(state.receipt.sub_total)"/>
+                        </strong>
+                    </div>
+                    <div>
+                        <span>Delivery</span>
+                        <strong>
+                            <t t-esc="this.formatPrice(state.receipt.delivery_fee)"/>
+                        </strong>
+                    </div>
+                    
                     <div class="receipt-total">
+
 
                         <div>
                             <span>Total</span>
@@ -760,11 +835,48 @@
 
                 </div>
 
+
+
             </t>
 
             
 
         </div>
+
+        <!-- <div class="cart-summary">
+
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span>
+                    <t t-esc="this.formatPrice(
+                        state.cart.reduce(
+                            (total, line) => total + (line.price * line.quantity),
+                            0
+                        )
+                    )"/>
+                </span>
+            </div>
+
+            <t t-if="state.orderType === 'delivery'">
+
+                <div class="summary-row">
+                    <span>Delivery Fee</span>
+                    <span>
+                        <t t-esc="this.formatPrice(state.deliveryFee)"/>
+                    </span>
+                </div>
+
+            </t>
+
+            <div class="summary-total">
+                <span>Total</span>
+                <span>
+                    <t t-esc="this.formatPrice(this.getCartTotal())"/>
+                </span>
+            </div>
+
+        </div> -->
+
 
     </t>
 

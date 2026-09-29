@@ -67,6 +67,23 @@ class POS(models.Model):
         copy=False
     )
 
+
+    order_type = fields.Selection(
+        [
+            ('dine_in', 'Dine In'),
+            ('take_out', 'Takeout'),
+            ('delivery', 'Delivery'),
+        ],
+        string='Order Type',
+        default='dine_in',
+        required=True,
+        copy=False
+    )
+
+    delivery_fee = fields.Float(
+        string="Delivery Fee",
+        default=0.0,
+    )
     paid_at = fields.Datetime(
         string='Paid At',
         readonly=True,
@@ -90,13 +107,26 @@ class POS(models.Model):
         copy=False
     )
 
-    @api.depends('line_ids.subtotal')
+    # @api.depends('line_ids.subtotal')
+    # def _compute_total(self):
+    #     for record in self:
+    #         record.total = sum(
+    #             line.subtotal
+    #             for line in record.line_ids
+    #         )
+    @api.depends('line_ids.subtotal', 'delivery_fee', 'order_type')
     def _compute_total(self):
         for record in self:
-            record.total = sum(
-                line.subtotal
-                for line in record.line_ids
+            subtotal = sum(record.line_ids.mapped('subtotal'))
+
+            delivery_fee = (
+                record.delivery_fee
+                if record.order_type == 'delivery'
+                else 0.0
             )
+
+            record.total = subtotal + delivery_fee
+
 
     # =====================================================
     # GENERATE ORDER NUMBER

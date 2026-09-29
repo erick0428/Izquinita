@@ -163,16 +163,106 @@
     font-weight: bold;
 }
 
+/* ========================================================= */
+/* Order Type */
+/* ========================================================= */
+
+.order-type {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.order-type-button {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+
+    padding: 10px 14px;
+
+    border: 1px solid #ddd;
+    border-radius: 8px;
+
+    background: #fff;
+    color: #333;
+
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.order-type-button:hover {
+    background: #f5f5f5;
+}
+
+.order-type-button.active {
+    background: #875A7B;
+    border-color: #875A7B;
+    color: white;
+}
+
+.delivery-fee {
+    padding: 10px;
+    background: #f8f8f8;
+    border-bottom: 1px solid #ddd;
+}
+
+.delivery-fee label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #333;
+}
+
+.delivery-fee-input {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: white;
+    overflow: hidden;
+}
+
+.delivery-fee-input span {
+    padding-left: 12px;
+    color: #666;
+    font-weight: 600;
+}
+
+.delivery-fee-input input {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+}
+
+
 
 /* ========================================================= */
 /* CART */
 /* ========================================================= */
 
-.cart {
-    max-height: 400px;
+/* .cart {
+    flex: 1;
+    min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
+} */
+.your-parent-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
+
+.cart {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+}
+
 
 /* Optional: nicer scrollbar */
 .cart::-webkit-scrollbar {

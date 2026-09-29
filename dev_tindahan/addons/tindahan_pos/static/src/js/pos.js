@@ -15,6 +15,9 @@ export class TindahanPOS extends Component {
             variants: [],
             products: [],
             cart: [],
+            orderType: 'dine_in',
+            deliveryFee: 0,
+            subTotal: 0,
             total: 0,
             search: "",
             activeVariant: null,
@@ -61,6 +64,23 @@ export class TindahanPOS extends Component {
             await this.loadSession(); // 🔥 important
         });
     }
+
+    setOrderType(type) {
+        this.state.orderType = type;
+
+        // Reset delivery fee when not delivery
+        if (type !== 'delivery') {
+            this.state.deliveryFee = 0;
+            this.calculateTotal();
+        }
+    }
+
+    setDeliveryFee(event) {
+        this.state.deliveryFee = Number(event.target.value) || 0;
+        this.calculateTotal();
+    }
+
+
     handlePaymentKeyboard(event) {
         if (
             !this.state.showPaymentModal &&
@@ -391,15 +411,29 @@ export class TindahanPOS extends Component {
     // =========================================================
 
     calculateTotal() {
+        
+        this.state.subTotal = this.getCartSubtotal()
+        this.state.total = this.state.subTotal + (Number(this.state.deliveryFee) || 0)
+        // this.state.total = this.getCartTotal()
 
-        this.state.total = this.state.cart.reduce(
-            (total, line) => {
-                return total + (
-                    line.price * line.quantity
-                );
-            },
+    }
+    // getCartTotal() {
+    //     const subtotal = this.state.cart.reduce(
+    //         (total, line) => total + (line.price * line.quantity),
+    //         0
+    //     );
+
+    //     return subtotal + this.state.deliveryFee;
+    // }
+    getCartSubtotal() {
+        return this.state.cart.reduce(
+            (total, line) => total + (line.price * line.quantity),
             0
         );
+    }
+
+    getCartTotal() {
+        return this.getCartSubtotal() + (Number(this.state.deliveryFee) || 0);
     }
 
 
@@ -412,6 +446,8 @@ export class TindahanPOS extends Component {
         this.state.total = 0;
         this.state.cash = 0;
         this.state.change = 0;
+        this.state.deliveryFee = 0;
+        this.state.subTotal = 0;
         
     }
 
@@ -457,8 +493,9 @@ export class TindahanPOS extends Component {
                                 this.state.customer_name ||
                                 "Walk-in Customer",
 
+                            order_type: this.state.orderType,
+                            delivery_fee: this.state.deliveryFee,
                             cash: cash,
-
                             change: change,
 
                             line_ids: lines,
@@ -495,7 +532,14 @@ export class TindahanPOS extends Component {
 
 
     async payOrder() {
-
+        if (
+            this.state.orderType === "delivery" &&
+            Number(this.state.deliveryFee) <= 0
+        ) {
+            alert("Please enter a delivery fee greater than zero.");
+            return;
+        }
+        
         const cash = parseFloat(this.state.cash) || 0;
 
         if (!this.state.session) {
@@ -521,7 +565,7 @@ export class TindahanPOS extends Component {
         // -------------------------------------------------
         // SAVE RECEIPT DATA
         // -------------------------------------------------
-
+        
         this.state.receipt = {
             order_name: "POS-" + Date.now(),
 
@@ -537,7 +581,9 @@ export class TindahanPOS extends Component {
                 price: line.price,
                 quantity: line.quantity,
             })),
-
+           
+            sub_total: this.state.subTotal,
+            delivery_fee: this.state.deliveryFee,
             total: this.state.total,
 
             cash: cash,
@@ -590,6 +636,7 @@ export class TindahanPOS extends Component {
 
         this.clearCart();
     }
+
 
 
     async loadSession() {
@@ -653,24 +700,7 @@ export class TindahanPOS extends Component {
         );
     }
 
-    // async closeSession() {
-    //     if (!this.state.session) {
-    //         alert("No active session.");
-    //         return;
-    //     }
-   
-    //     await rpc("/web/dataset/call_kw", {
-    //         model: "tindahan_pos.session",
-    //         method: "write",
-    //         args: [
-    //             [this.state.session.id],
-    //             { state: "closed" }
-    //         ],
-    //         kwargs: {}, // always included
-    //     });
-       
-    //     this.state.session = null;
-    // }
+
 
     async confirmCloseSession() {
         if (!this.state.session) {
