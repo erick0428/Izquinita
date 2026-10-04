@@ -25,6 +25,7 @@
                 <field name="payment_status"/>
                 <field name="order_type"/>
                 <field name="delivery_fee"/>
+                <field name="payment_type"/>
                 <field name="session_id"/>
 
             </list>
@@ -68,6 +69,7 @@
                         <field name="kitchen_status"/>
                         <field name="payment_status"/>
                         <field name="order_type"/>
+                        <field name="payment_type"/>
                         <field name="delivery_fee"/>
                     </group>
 

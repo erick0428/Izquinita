@@ -12,7 +12,7 @@
                 <div class="pos-header">
                     <h1>Products</h1>
                 </div> -->
-                
+
                 <!-- ORDER TYPE + DELIVERY FEE -->
                 <div class="order-options">
 
@@ -52,10 +52,10 @@
 
                         <div class="delivery-fee">
 
-                            <label for="delivery_fee">
+                            <!-- <label for="delivery_fee">
                                 Delivery Fee
-                            </label>
-
+                            </label> -->
+<!-- 
                             <div class="delivery-fee-input">
                                 <span>₱</span>
 
@@ -68,7 +68,135 @@
                                     t-on-input="setDeliveryFee"
                                     placeholder="0.00"
                                 />
+                            </div> -->
+                            <div class="delivery-fee">
+
+                                <label>Delivery Fee</label>
+
+                                <div
+                                    class="delivery-fee-display"
+                                    t-on-click="openDeliveryFeeKeypad"
+                                >
+                                    ₱
+                                    <t t-esc="state.deliveryFee || '0.00'"/>
+                                </div>
+
                             </div>
+
+                            <t t-if="state.showDeliveryKeypad">
+
+                                <div
+                                    class="delivery-keypad-modal"
+                                    t-on-click="closeDeliveryFeeKeypad"
+                                >
+
+                                    <div
+                                        class="delivery-keypad-modal-content"
+                                        t-on-click.stop=""
+                                    >
+
+                                        <div class="delivery-keypad-header">
+                                            <h3>Delivery Fee</h3>
+
+                                            <button
+                                                class="keypad-close"
+                                                t-on-click="closeDeliveryFeeKeypad"
+                                            >
+                                                ×
+                                            </button>
+                                        </div>
+
+                                        <div class="delivery-keypad-display">
+                                            <span>₱</span>
+                                            <strong>
+                                                <t t-esc="state.deliveryFeeInput || '0'"/>
+                                            </strong>
+                                        </div>
+
+                                        <div class="delivery-keypad-buttons">
+
+                                            <button t-on-click="() => this.keypadInput('1')">
+                                                1
+                                            </button>
+
+                                            <button t-on-click="() => this.keypadInput('2')">
+                                                2
+                                            </button>
+
+                                            <button t-on-click="() => this.keypadInput('3')">
+                                                3
+                                            </button>
+
+                                            <button t-on-click="() => this.keypadInput('4')">
+                                                4
+                                            </button>
+
+                                            <button t-on-click="() => this.keypadInput('5')">
+                                                5
+                                            </button>
+
+                                            <button t-on-click="() => this.keypadInput('6')">
+                                                6
+                                            </button>
+
+                                            <button t-on-click="() => this.keypadInput('7')">
+                                                7
+                                            </button>
+
+                                            <button t-on-click="() => this.keypadInput('8')">
+                                                8
+                                            </button>
+
+                                            <button t-on-click="() => this.keypadInput('9')">
+                                                9
+                                            </button>
+
+                                            <button
+                                                class="keypad-clear"
+                                                t-on-click="this.keypadClear"
+                                            >
+                                                C
+                                            </button>
+
+                                            <button t-on-click="() => this.keypadInput('0')">
+                                                0
+                                            </button>
+
+                                            <button
+                                                class="keypad-backspace"
+                                                t-on-click="this.keypadBackspace"
+                                            >
+                                                ⌫
+                                            </button>
+
+                                        </div>
+
+                                        <div class="delivery-keypad-actions">
+
+                                            <button
+                                                class="keypad-cancel"
+                                                t-on-click="closeDeliveryFeeKeypad"
+                                            >
+                                                Cancel
+                                            </button>
+
+                                            <button
+                                                class="keypad-confirm"
+                                                t-on-click="confirmDeliveryFee"
+                                            >
+                                                Confirm
+                                            </button>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </t>
+
+
+                            
 
                         </div>
 
@@ -371,6 +499,31 @@
                                 </button>
                             </div>
 
+                            <div class="payment-type-container">
+
+                                <button
+                                    class="btn btn-lg"
+                                    t-att-class="state.paymentType === 'cash'
+                                        ? 'btn-primary'
+                                        : 'btn-outline-primary'"
+                                    t-on-click="() => this.setPaymentType('cash')">
+
+                                    CASH
+
+                                </button>
+
+                                <button
+                                    class="btn btn-lg"
+                                    t-att-class="state.paymentType === 'gcash'
+                                        ? 'btn-primary'
+                                        : 'btn-outline-primary'"
+                                    t-on-click="() => this.setPaymentType('gcash')">
+
+                                    GCASH
+
+                                </button>
+
+                            </div>
 
                             <!-- TOTAL -->
                             <div class="payment-summary">
@@ -498,6 +651,46 @@
                                 <t t-esc="
                                     this.formatPrice(
                                         state.session.total_sales
+                                    )
+                                "/>
+                            </strong>
+
+                        </div>
+
+                        <div class="cash-row">
+
+                            <label>Total Delivery</label>
+
+                            <strong>
+                                <t t-esc="
+                                    this.formatPrice(
+                                        state.session.total_df
+                                    )
+                                "/>
+                            </strong>
+
+                        </div>
+                        <div class="cash-row">
+
+                            <label>Total Cash</label>
+
+                            <strong>
+                                <t t-esc="
+                                    this.formatPrice(
+                                        state.session.total_cash
+                                    )
+                                "/>
+                            </strong>
+
+                        </div>
+                        <div class="cash-row">
+
+                            <label>Total GCash</label>
+
+                            <strong>
+                                <t t-esc="
+                                    this.formatPrice(
+                                        state.session.total_gcash
                                     )
                                 "/>
                             </strong>
@@ -668,7 +861,7 @@
                                         state.report.total_sales
                                     )
                                 "/>
-                        </strong>
+                            </strong>
                         </div>
 
                         <div class="cash-row">

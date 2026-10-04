@@ -1138,3 +1138,141 @@
 .cash-key-done {
     background: #16a34a;
 }
+
+
+/*  Delivery Keypad */
+.delivery-keypad-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(0, 0, 0, 0.55);
+}
+
+.delivery-keypad-modal-content {
+    width: 360px;
+    max-width: 90%;
+
+    padding: 20px;
+
+    background: white;
+    border-radius: 16px;
+
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.35);
+}
+
+.delivery-keypad-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 15px;
+}
+
+.delivery-keypad-header h3 {
+    margin: 0;
+    font-size: 22px;
+}
+
+.keypad-close {
+    width: 40px;
+    height: 40px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: #eee;
+
+    font-size: 25px;
+    cursor: pointer;
+}
+
+.delivery-keypad-display {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 5px;
+
+    padding: 15px;
+    margin-bottom: 15px;
+
+    border-radius: 10px;
+
+    background: #f3f3f3;
+
+    font-size: 28px;
+}
+
+.delivery-keypad-display strong {
+    min-width: 150px;
+    text-align: right;
+}
+
+.delivery-keypad-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.delivery-keypad-buttons button {
+    height: 60px;
+
+    border: none;
+    border-radius: 10px;
+
+    background: #f1f1f1;
+
+    font-size: 24px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.delivery-keypad-buttons button:hover {
+    background: #ddd;
+}
+
+.keypad-clear {
+    background: #ffdddd !important;
+    color: #c00;
+}
+
+.keypad-backspace {
+    background: #ffe5cc !important;
+}
+
+.delivery-keypad-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
+    gap: 10px;
+
+    margin-top: 15px;
+}
+
+.delivery-keypad-actions button {
+    height: 50px;
+
+    border: none;
+    border-radius: 10px;
+
+    font-size: 17px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.keypad-cancel {
+    background: #e5e5e5;
+}
+
+.keypad-confirm {
+    background: #198754;
+    color: white;
+}
+

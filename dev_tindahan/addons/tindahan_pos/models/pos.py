@@ -89,6 +89,19 @@ class POS(models.Model):
         readonly=True,
         copy=False
     )
+    
+    
+    payment_type = fields.Selection(
+        [
+            ('cash', 'Cash'),
+            ('gcash', 'GCash'),
+            
+        ],
+        string='Payment Type',
+        default='cash',
+        required=True,
+        copy=False
+    )
 
     # =====================================================
     # KITCHEN
@@ -209,23 +222,56 @@ class POS(models.Model):
     @api.model
     def create_pos_order(self, vals):
 
+        payment_type = vals.get('payment_type', 'cash')
+
         cash = float(vals.get('cash', 0.0))
         change = float(vals.get('change', 0.0))
 
+        # Validate payment type
+        if payment_type not in ('cash', 'gcash'):
+            raise UserError("Invalid payment type.")
+
         vals.pop('cash', None)
         vals.pop('change', None)
+
+        vals['payment_type'] = payment_type
         vals["kitchen_status"] = "new"
+
         order = self.create(vals)
 
-        if cash < order.total:
-            raise UserError(
-                f"Insufficient cash. "
-                f"Total is ₱{order.total:.2f}."
-            )
+        # =================================================
+        # CASH PAYMENT
+        # =================================================
+
+        if payment_type == 'cash':
+
+            if cash < order.total:
+                raise UserError(
+                    f"Insufficient cash. "
+                    f"Total is ₱{order.total:.2f}."
+                )
+
+            # Calculate change on the server
+            change = cash - order.total
+
+        # =================================================
+        # GCASH PAYMENT
+        # =================================================
+
+        elif payment_type == 'gcash':
+
+            # GCash payment is exactly the order total
+            cash = order.total
+            change = 0.0
+
+        # =================================================
+        # SAVE PAYMENT
+        # =================================================
 
         order.write({
             'cash': cash,
             'change': change,
+            'payment_type': payment_type,
             'payment_status': 'paid',
             'paid_at': fields.Datetime.now(),
             'kitchen_status': 'new',
@@ -236,8 +282,12 @@ class POS(models.Model):
             'name': order.name,
             'customer_name': order.customer_name,
             'total': order.total,
+
+            # Payment information
+            'payment_type': order.payment_type,
             'cash': order.cash,
             'change': order.change,
+
             'payment_status': order.payment_status,
             'kitchen_status': order.kitchen_status,
 
@@ -250,6 +300,7 @@ class POS(models.Model):
                 for line in order.line_ids
             ],
         }
+
 
     # =====================================================
     # GET KITCHEN ORDERS

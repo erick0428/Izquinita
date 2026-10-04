@@ -4,19 +4,23 @@ import { Component, onWillStart, useState,onMounted,
     onWillUnmount, } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { rpc } from "@web/core/network/rpc";
+// import { useService } from "@web/core/utils/hooks";
+
 
 export class TindahanPOS extends Component {
 
     static template = "tindahan_pos.POSScreen";
 
     setup() {
-
+        // this.popup = useService("popup");
         this.state = useState({
             variants: [],
             products: [],
             cart: [],
             orderType: 'dine_in',
             deliveryFee: 0,
+            showDeliveryKeypad: false,
+            deliveryFeeInput: "",
             subTotal: 0,
             total: 0,
             search: "",
@@ -28,7 +32,8 @@ export class TindahanPOS extends Component {
             change: 0,
             showPaymentModal: false,
             customer_name: "",
-
+            // Payment
+            paymentType: "cash",
             session: null,
 
             openingCashInput: "",
@@ -170,6 +175,21 @@ export class TindahanPOS extends Component {
             }
         }
     }
+    setPaymentType(type) {
+        this.state.paymentType = type;
+
+        if (type === "gcash") {
+            // GCash does not need cash/change calculation
+            this.state.cashInput = "";
+            this.state.cash = this.state.total;
+            this.state.change = 0;
+        } else {
+            // Cash
+            this.state.cashInput = "";
+            this.state.cash = 0;
+            this.state.change = 0;
+        }
+    }
 
 
     openPaymentModal() {
@@ -178,11 +198,16 @@ export class TindahanPOS extends Component {
             return;
         }
 
+        // Default payment method
+        this.state.paymentType = "cash";
+
         this.state.cash = 0;
-        this.state.cashInput = 0;
+        this.state.cashInput = "";
         this.state.change = 0;
+
         this.state.showPaymentModal = true;
     }
+
     closePaymentModal() {
         this.state.showPaymentModal = false;
         this.state.cash = 0;
@@ -191,12 +216,21 @@ export class TindahanPOS extends Component {
     }
     clearPayment() {
         this.state.cash = 0;
-        this.state.cashInput = 0;
+        this.state.cashInput = "";
         this.state.change = 0;
+
+        if (this.state.paymentType === "gcash") {
+            this.state.cash = this.state.total;
+        }
     }
+
 
     // ✅ MOVE THIS INSIDE
     pressKey(key) {
+        if (this.state.paymentType === "gcash") {
+            return;
+        }
+
         let value = this.state.cashInput || "";
 
         if (key === "⌫") {
@@ -279,6 +313,52 @@ export class TindahanPOS extends Component {
 
         this.state.change = change > 0 ? change : 0;
     }
+
+    // =========================================================
+    // Delivery Fee
+    // =========================================================
+
+    openDeliveryFeeKeypad() {
+        this.state.deliveryFeeInput =
+            this.state.deliveryFee
+                ? String(this.state.deliveryFee)
+                : "";
+
+        this.state.showDeliveryKeypad = true;
+       
+    }
+
+    closeDeliveryFeeKeypad() {
+        this.state.showDeliveryKeypad = false;
+    }
+
+    keypadInput(value) {
+        this.state.deliveryFeeInput += value;
+    }
+
+    keypadClear() {
+        this.state.deliveryFeeInput = "";
+    }
+
+    keypadBackspace() {
+        this.state.deliveryFeeInput =
+            this.state.deliveryFeeInput.slice(0, -1);
+    }
+
+    confirmDeliveryFee() {
+        const value = parseFloat(this.state.deliveryFeeInput);
+
+        this.state.deliveryFee =
+            Number.isFinite(value) && value >= 0
+                ? value
+                : 0;
+
+        this.state.showDeliveryKeypad = false;
+        this.calculateTotal()
+    }
+
+
+
 
     // =========================================================
     // LOAD PRODUCTS
@@ -417,14 +497,7 @@ export class TindahanPOS extends Component {
         // this.state.total = this.getCartTotal()
 
     }
-    // getCartTotal() {
-    //     const subtotal = this.state.cart.reduce(
-    //         (total, line) => total + (line.price * line.quantity),
-    //         0
-    //     );
 
-    //     return subtotal + this.state.deliveryFee;
-    // }
     getCartSubtotal() {
         return this.state.cart.reduce(
             (total, line) => total + (line.price * line.quantity),
@@ -445,11 +518,14 @@ export class TindahanPOS extends Component {
         this.state.cart = [];
         this.state.total = 0;
         this.state.cash = 0;
+        this.state.cashInput = "";
         this.state.change = 0;
         this.state.deliveryFee = 0;
         this.state.subTotal = 0;
-        
+
+        this.state.paymentType = "cash";
     }
+
 
 
     // =========================================================
@@ -497,7 +573,8 @@ export class TindahanPOS extends Component {
                             delivery_fee: this.state.deliveryFee,
                             cash: cash,
                             change: change,
-
+                            // ⭐ PAYMENT TYPE
+                            payment_type: this.state.paymentType,
                             line_ids: lines,
                             kitchen_status: "new",
                         },
@@ -532,15 +609,16 @@ export class TindahanPOS extends Component {
 
 
     async payOrder() {
+
         if (
             this.state.orderType === "delivery" &&
             Number(this.state.deliveryFee) <= 0
         ) {
-            alert("Please enter a delivery fee greater than zero.");
+            alert(
+                "Please enter a delivery fee greater than zero."
+            );
             return;
         }
-        
-        const cash = parseFloat(this.state.cash) || 0;
 
         if (!this.state.session) {
             alert("Please open POS first.");
@@ -552,61 +630,117 @@ export class TindahanPOS extends Component {
             return;
         }
 
-        if (cash < this.state.total) {
-            alert("Insufficient cash.");
+        const total = Number(this.state.total) || 0;
+
+        let cash = 0;
+        let change = 0;
+
+        // =====================================================
+        // CASH
+        // =====================================================
+
+        if (this.state.paymentType === "cash") {
+
+            cash = parseFloat(this.state.cash) || 0;
+
+            if (cash < total) {
+                alert(
+                    `Insufficient cash.\n\n` +
+                    `Total: ${this.formatPrice(total)}\n` +
+                    `Cash: ${this.formatPrice(cash)}`
+                );
+                return;
+            }
+
+            change = cash - total;
+        }
+
+        // =====================================================
+        // GCASH
+        // =====================================================
+
+        else if (this.state.paymentType === "gcash") {
+
+            // GCash payment is exactly the order total
+            cash = total;
+            change = 0;
+        }
+
+        else {
+
+            alert("Please select a payment type.");
             return;
         }
 
-        // Calculate change
-        this.computeChange();
+        // Save calculated values
+        this.state.cash = cash;
+        this.state.change = change;
 
-        const change = this.state.change;
-
-        // -------------------------------------------------
+        // =====================================================
         // SAVE RECEIPT DATA
-        // -------------------------------------------------
-        
+        // =====================================================
+
         this.state.receipt = {
-            order_name: "POS-" + Date.now(),
+
+            order_name:
+                "POS-" + Date.now(),
 
             customer_name:
                 this.state.customer_name ||
                 "Walk-in Customer",
 
-            date: new Date().toLocaleString(),
+            date:
+                new Date().toLocaleString(),
 
-            lines: this.state.cart.map(line => ({
-                product_id: line.product_id,
-                name: line.name,
-                price: line.price,
-                quantity: line.quantity,
-            })),
-           
-            sub_total: this.state.subTotal,
-            delivery_fee: this.state.deliveryFee,
-            total: this.state.total,
+            lines:
+                this.state.cart.map(line => ({
+                    product_id: line.product_id,
+                    name: line.name,
+                    price: line.price,
+                    quantity: line.quantity,
+                })),
 
-            cash: cash,
+            sub_total:
+                this.state.subTotal,
 
-            change: change,
+            delivery_fee:
+                this.state.deliveryFee,
+
+            total:
+                total,
+
+            // ⭐ PAYMENT TYPE
+            payment_type:
+                this.state.paymentType,
+
+            cash:
+                cash,
+
+            change:
+                change,
         };
 
-        // -------------------------------------------------
+        // =====================================================
         // SAVE ORDER
-        // -------------------------------------------------
+        // =====================================================
 
-        const order = await this.saveOrder(cash, change);
+        const order =
+            await this.saveOrder(
+                cash,
+                change
+            );
 
         if (!order) {
             return;
         }
 
         // Use actual Odoo order number
-        this.state.receipt.order_name = order.name;
+        this.state.receipt.order_name =
+            order.name;
 
-        // -------------------------------------------------
+        // =====================================================
         // SHOW RECEIPT
-        // -------------------------------------------------
+        // =====================================================
 
         this.state.showReceipt = true;
 
@@ -616,26 +750,29 @@ export class TindahanPOS extends Component {
 
         window.print();
 
-        // -------------------------------------------------
+        // =====================================================
         // HIDE RECEIPT
-        // -------------------------------------------------
+        // =====================================================
 
         this.state.showReceipt = false;
 
-        // -------------------------------------------------
+        // =====================================================
         // RESET PAYMENT
-        // -------------------------------------------------
+        // =====================================================
 
         this.state.cash = "";
+        this.state.cashInput = "";
         this.state.change = 0;
+        this.state.paymentType = "cash";
         this.state.customer_name = "";
 
-        // -------------------------------------------------
+        // =====================================================
         // CLEAR CART
-        // -------------------------------------------------
+        // =====================================================
 
         this.clearCart();
     }
+
 
 
 
@@ -649,7 +786,10 @@ export class TindahanPOS extends Component {
                     'id',
                     'name',
                     'opening_cash',
-                    'total_sales'
+                    'total_sales',
+                    'total_df',
+                    'total_cash',
+                    'total_gcash'
                 ]
             ],
             kwargs: {},
@@ -788,7 +928,10 @@ export class TindahanPOS extends Component {
                         "id",
                         "name",
                         "opening_cash",
-                        "total_sales"
+                        "total_sales",
+                        "total_df",
+                        'total_cash',
+                        'total_gcash'
                     ]
                 ]
             );
@@ -821,21 +964,49 @@ export class TindahanPOS extends Component {
         }
     }
     async confirmPayment() {
-        const total = this.state.total || 0;
-        const cash = this.state.cash || 0;
 
-        if (cash < total) {
-            alert("Insufficient cash.");
-            return;
+        const total =
+            Number(this.state.total) || 0;
+
+        // =====================================================
+        // CASH
+        // =====================================================
+
+        if (this.state.paymentType === "cash") {
+
+            const cash =
+                parseFloat(this.state.cash) || 0;
+
+            if (cash < total) {
+
+                alert(
+                    `Insufficient cash.\n\n` +
+                    `Total: ${this.formatPrice(total)}\n` +
+                    `Cash: ${this.formatPrice(cash)}`
+                );
+
+                return;
+            }
+
+            this.state.change =
+                cash - total;
         }
 
-        this.state.change = cash - total;
+        // =====================================================
+        // GCASH
+        // =====================================================
 
-        // Your existing payOrder logic
+        else if (this.state.paymentType === "gcash") {
+
+            this.state.cash = total;
+            this.state.change = 0;
+        }
+
         await this.payOrder();
 
         this.state.showPaymentModal = false;
     }
+
 
 
 

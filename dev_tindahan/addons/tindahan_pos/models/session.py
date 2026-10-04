@@ -35,6 +35,18 @@ class POSSession(models.Model):
         compute="_compute_total_sales",
         store=True
     )
+    total_cash = fields.Float(
+        compute="_compute_total_cash",
+        store=True
+    )
+    total_gcash = fields.Float(
+        compute="_compute_total_gcash",
+        store=True
+    )
+    total_df = fields.Float(
+        compute="_compute_total_df",
+        store=True
+    )
     date = fields.Datetime(
         string='Date',
         readonly=True,
@@ -90,6 +102,32 @@ class POSSession(models.Model):
             rec.total_sales = sum(
                 order.total for order in rec.pos_ids
             )
+    @api.depends('pos_ids.total', 'pos_ids.payment_type')
+    def _compute_total_cash(self):
+        for rec in self:
+            rec.total_cash = sum(
+                order.total
+                for order in rec.pos_ids
+                if order.payment_type == 'cash'
+                and order.payment_status == 'paid'
+            )
+
+
+    @api.depends('pos_ids.total', 'pos_ids.payment_type')
+    def _compute_total_gcash(self):
+        for rec in self:
+            rec.total_gcash = sum(
+                order.total
+                for order in rec.pos_ids
+                if order.payment_type == 'gcash'
+                and order.payment_status == 'paid'
+            )
+    @api.depends('pos_ids.delivery_fee')
+    def _compute_total_df(self):
+        for rec in self:
+            rec.total_df = sum(rec.pos_ids.mapped('delivery_fee'))
+
+            
 
     difference = fields.Float(
         compute="_compute_difference",
@@ -138,6 +176,9 @@ class POSSession(models.Model):
             )
 
         total_sales = self.total_sales
+        total_df = self.total_df
+        total_cash = self.total_cash
+        total_gcash = self.total_gcash
 
         expected_cash = (
             self.opening_cash +
@@ -151,6 +192,9 @@ class POSSession(models.Model):
 
         self.write({
             'total_sales': total_sales,
+            'total_df': total_df,
+            'total_cash': total_cash,
+            'total_gcash': total_gcash,
             'closing_cash': expected_cash,
             'closing_input': actual_cash,
             'state': 'closed',
@@ -159,6 +203,9 @@ class POSSession(models.Model):
         return {
             'opening_cash': self.opening_cash,
             'total_sales': total_sales,
+            'total_df': total_df,
+            'total_cash': total_cash,
+            'total_gcash': total_gcash,
             'expected_cash': expected_cash,
             'closing_input': actual_cash,
             'difference': difference,
