@@ -414,6 +414,141 @@ class POS(models.Model):
         ).report_action(self)
 
 
+    # =====================================================
+    # Add  Line
+    # =====================================================
+
+    def action_add_line(self):
+        self.ensure_one()
+
+        action = {
+            "type": "ir.actions.act_window",
+            "name": "Add a Line",
+            "res_model": "tindahan_pos.pos.line.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "context": {
+                "default_pos_id": self.id,
+            },
+        }
+
+        _logger.warning("ADD LINE ACTION: %s", action)
+
+        return action
+
+
+
+    # =====================================================
+    # Get widget data
+    # =====================================================
+
+    def add_widget_product(self, product_id):
+        self.ensure_one()
+
+        if self.payment_status == "paid":
+            raise UserError("You cannot modify a paid order.")
+
+        product = self.env["tindahan_pos.product"].browse(
+            int(product_id)
+        ).exists()
+
+        if not product:
+            raise UserError("Product not found.")
+
+        Line = self.env["tindahan_pos.pos.line"]
+
+        existing_line = Line.search([
+            ("pos_id", "=", self.id),
+            ("product_id", "=", product.id),
+        ], limit=1)
+
+        if existing_line:
+            existing_line.write({
+                "quantity": existing_line.quantity + 1,
+            })
+        else:
+            Line.create({
+                "pos_id": self.id,
+                "product_id": product.id,
+                "quantity": 1,
+            })
+
+        return self.get_widget_order_data()
+
+
+    @api.model
+    def get_product_widget_data(self, search=""):
+        Product = self.env["tindahan_pos.product"]
+
+        domain = []
+
+        if search:
+            domain = [
+                "|",
+                ("description", "ilike", search),
+                ("variant_id.name", "ilike", search),
+            ]
+
+        products = Product.search(domain, limit=100)
+
+        return {
+            "products": [
+                {
+                    "id": product.id,
+                    "name": product.description or "Product",
+                    "price": product.srp or 0.0,
+                    "variant": (
+                        product.variant_id.display_name
+                        if product.variant_id
+                        else ""
+                    ),
+                }
+                for product in products
+            ],
+        }
+
+    
+    def get_widget_order_data(self):
+        self.ensure_one()
+
+        return {
+            "id": self.id,
+            "name": self.name,
+            "total": self.total,
+            "items": [
+                {
+                    "line_id": line.id,
+                    "product_id": line.product_id.id,
+                    "name": line.product_description or "Product",
+                    "variant": (
+                        line.variant_id.display_name
+                        if line.variant_id
+                        else ""
+                    ),
+                    "quantity": line.quantity,
+                    "price": line.price,
+                    "subtotal": line.subtotal,
+                }
+                for line in self.line_ids
+            ],
+        }
+        
+    def action_open_product_widget(self):
+        self.ensure_one()
+
+        return {
+            "type": "ir.actions.client",
+            "name": "Select Products",
+            "tag": "tindahan_pos.pos_widget",
+            "target": "new",
+            "context": {
+                "active_model": self._name,
+                "active_id": self.id,
+                "default_pos_id": self.id,
+            },
+        }        
+        
+
 class POSLine(models.Model):
     _name = 'tindahan_pos.pos.line'
     _description = 'POS Order Line'

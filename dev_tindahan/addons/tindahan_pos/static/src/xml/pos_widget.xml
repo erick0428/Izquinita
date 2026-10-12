@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="tindahan_pos.PosWidget" owl="1">
+        <div class="tindahan-pos-widget">
+
+            <!-- Product search -->
+            <div class="pos-product-search mb-3">
+                <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Search product..."
+                    t-att-value="state.search"
+                    t-on-input="onSearchInput"
+                />
+            </div>
+
+            <!-- Loading indicator -->
+            <div t-if="state.loading" class="text-center p-4">
+                Loading products...
+            </div>
+
+            <!-- Empty state -->
+            <div
+                t-elif="!state.products || !state.products.length"
+                class="text-center p-4"
+            >
+                No products found.
+            </div>
+
+            <!-- Product grid -->
+            <div t-else="" class="pos-product-container">
+                <div class="pos-product-grid">
+
+                    <t
+                        t-foreach="state.products || []"
+                        t-as="product"
+                        t-key="product.id"
+                    >
+                        <button
+                            type="button"
+                            class="pos-product-card"
+                            t-on-click="() => this.addProduct(product)"
+                        >
+                            <span class="pos-product-name">
+                                <t t-esc="product.name"/>
+                            </span>
+
+                            <span
+                                t-if="product.variant"
+                                class="pos-product-description"
+                            >
+                                <t t-esc="product.variant"/>
+                            </span>
+
+                            <span class="pos-product-price">
+                                ₱<t t-esc="(product.price || 0).toFixed(2)"/>
+                            </span>
+                        </button>
+                    </t>
+
+                </div>
+            </div>
+
+        </div>
+    </t>
+
+</templates>

@@ -25,6 +25,7 @@
         'views/pos_receipt.xml',
         'views/session.xml',
         'views/kitchen_menu.xml',
+        'views/pos_line_wizard.xml',
         'views/menu.xml',
                 
         'views/views.xml',
@@ -44,6 +45,10 @@
             'tindahan_pos/static/src/js/kitchen_screen.js',
             'tindahan_pos/static/src/xml/kitchen_screen.xml',
             'tindahan_pos/static/src/css/kitchen_screen.css',
+            
+            'tindahan_pos/static/src/js/pos_widget.js',
+            'tindahan_pos/static/src/xml/pos_widget.xml',
+            'tindahan_pos/static/src/css/pos_widget.css',
            
         ],
     },

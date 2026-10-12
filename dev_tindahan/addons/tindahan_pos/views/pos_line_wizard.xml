@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<odoo>
+    <record id="view_pos_line_wizard_form" model="ir.ui.view">
+        <field name="name">tindahan_pos.pos.line.wizard.form</field>
+        <field name="model">tindahan_pos.pos.line.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Add a Line">
+                <group>
+                    <field name="pos_id" invisible="1"/>
+                    <field name="product_id"
+                           options="{'no_create': True}"/>
+                    <field name="quantity"/>
+                </group>
+                <footer>
+                    <button name="action_add_product"
+                            type="object"
+                            string="Add Product"
+                            class="btn-primary"/>
+                    <button string="Cancel"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>
