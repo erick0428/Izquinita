@@ -14,6 +14,7 @@ class Product(models.Model):
         )
     ]
     
+    active = fields.Boolean(default=True)
     name = fields.Char('Name',required=True)
     description = fields.Char('Description',required=True)
     image = fields.Binary('Image', attachment=True)

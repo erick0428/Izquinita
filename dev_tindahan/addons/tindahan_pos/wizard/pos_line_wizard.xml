@@ -2,14 +2,14 @@
 
 <odoo>
     <record id="view_pos_line_wizard_form" model="ir.ui.view">
-        <field name="name">tindahan_pos.pos.line.wizard.form</field>
-        <field name="model">tindahan_pos.pos.line.wizard</field>
+        <field name="name">tindahan_pos.pos_line_wizard.form</field>
+        <field name="model">tindahan_pos.pos_line_wizard</field>
         <field name="arch" type="xml">
             <form string="Add a Line">
                 <group>
                     <field name="pos_id" invisible="1"/>
                     <field name="product_id"
-                           options="{'no_create': True}"/>
+                        options="{'no_create': True}"/>
                     <field name="quantity"/>
                 </group>
                 <footer>

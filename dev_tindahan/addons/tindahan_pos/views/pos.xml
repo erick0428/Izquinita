@@ -64,7 +64,7 @@
                     <button
                         name="action_open_product_widget"
                         type="object"
-                        string="Select Products"
+                        string="Add Products"
                         class="btn-primary"
                     />
                 </header>
@@ -99,11 +99,11 @@
 
                     </field>
 
-                    <button name="action_add_line"
+                    <!-- <button name="action_add_line"
                         type="object"
                         string="Add a line"
                         icon="fa-plus"
-                        class="btn-secondary"/>
+                        class="btn-secondary"/> -->
 
                     <group>
 

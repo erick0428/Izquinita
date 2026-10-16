@@ -25,12 +25,14 @@
         'views/pos_receipt.xml',
         'views/session.xml',
         'views/kitchen_menu.xml',
-        'views/pos_line_wizard.xml',
+        
+        'wizard/pos_line_wizard.xml',
+         
         'views/menu.xml',
                 
         'views/views.xml',
         'views/templates.xml',
- 
+        
     ],
     "assets": {
         "web.assets_backend": [
@@ -38,9 +40,9 @@
             "tindahan_pos/static/src/xml/pos.xml",
             "tindahan_pos/static/src/css/pos.css",
 
-            "tindahan_pos/static/src/xml/pos_screen.xml",
-            "tindahan_pos/static/src/css/pos_screen.css",
-            "tindahan_pos/static/src/css/pos_receipt.css",
+            # "tindahan_pos/static/src/xml/pos_screen.xml",
+            # "tindahan_pos/static/src/css/pos_screen.css",
+            # "tindahan_pos/static/src/css/pos_receipt.css",
             
             'tindahan_pos/static/src/js/kitchen_screen.js',
             'tindahan_pos/static/src/xml/kitchen_screen.xml',

@@ -1,9 +1,10 @@
-from odoo import models, fields, _
+from odoo import models, fields, api, _
 from odoo.exceptions import UserError
-
+import logging
+_logger = logging.getLogger(__name__)
 
 class POSLineWizard(models.TransientModel):
-    _name = "tindahan_pos.pos.line.wizard"
+    _name = "tindahan_pos.pos_line_wizard"
     _description = "Add Product to POS Order"
 
     pos_id = fields.Many2one(
@@ -16,8 +17,6 @@ class POSLineWizard(models.TransientModel):
     product_id = fields.Many2one(
         "tindahan_pos.product",
         string="Product",
-        required=True,
-        domain=[("active", "=", True)],
     )
 
     quantity = fields.Float(
@@ -25,8 +24,17 @@ class POSLineWizard(models.TransientModel):
         default=1.0,
         required=True,
     )
+    
+    @api.onchange("pos_id")
+    def _onchange_pos_id(self):
+        _logger.warning(
+            "POS onchange triggered: pos_id=%s",
+            self.pos_id.id,
+        )
+        return
 
     def action_add_product(self):
+        _logger.info("Triggered")
         self.ensure_one()
 
         if self.quantity <= 0:
@@ -48,4 +56,4 @@ class POSLineWizard(models.TransientModel):
             "quantity": self.quantity,
         })
 
-        return {"type": "ir.actions.act_window_close"}
+        # return {"type": "ir.actions.act_window_close"}

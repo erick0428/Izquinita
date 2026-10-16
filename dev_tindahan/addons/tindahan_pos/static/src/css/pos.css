@@ -584,7 +584,7 @@
 /* CLOSE SESSION MODAL */
 /* ========================================================= */
 
-.modal-overlay {
+.tindahan-pos-modal-overlay {
     position: fixed;
 
     top: 0;
@@ -602,7 +602,7 @@
     z-index: 99999;
 }
 
-.modal {
+.tindahan-pos-modal {
     width: 450px;
     max-width: 90vw;
 
@@ -620,7 +620,7 @@
     z-index: 100000;
 }
 
-.modal h2 {
+.tindahan-pos-modal h2 {
     margin-top: 0;
     margin-bottom: 25px;
 
@@ -690,7 +690,7 @@
 /* MODAL BUTTONS */
 /* ========================================================= */
 
-.modal-actions {
+.tindahan-pos-modal-actions {
     display: flex;
 
     gap: 10px;
@@ -698,7 +698,7 @@
     margin-top: 20px;
 }
 
-.modal-actions button {
+.tindahan-pos-modal-actions button {
     flex: 1;
 
     padding: 13px;
@@ -714,21 +714,21 @@
     font-weight: bold;
 }
 
-.modal-actions button:first-child {
+.tindahan-pos-modal-actions button:first-child {
     background: #dc3545;
     color: white;
 }
 
-.modal-actions button:first-child:hover {
+.tindahan-pos-modal-actions button:first-child:hover {
     background: #bb2d3b;
 }
 
-.modal-actions button:last-child {
+.tindahan-pos-modal-actions button:last-child {
     background: #6c757d;
     color: white;
 }
 
-.modal-actions button:last-child:hover {
+.tindahan-pos-modal-actions button:last-child:hover {
     background: #5c636a;
 }
 
@@ -762,7 +762,7 @@
 /* REPORT MODAL */
 /* ========================================================= */
 
-.modal-overlay .modal > button {
+.tindahan-pos-modal-overlay .tindahan-pos-modal > button {
     width: 100%;
 
     margin-top: 20px;
@@ -782,7 +782,7 @@
     cursor: pointer;
 }
 
-.modal-overlay .modal > button:hover {
+.tindahan-pos-modal-overlay .tindahan-pos-modal > button:hover {
     background: #157347;
 }
 

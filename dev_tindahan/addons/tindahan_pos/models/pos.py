@@ -214,7 +214,23 @@ class POS(models.Model):
                     raise
 
                 time.sleep(0.2)
+                
+    
+    def write(self, vals):
+        vals = vals.copy()
 
+        # Record when an order becomes paid.
+        if vals.get('payment_status') == 'paid':
+            for order in self:
+                if not order.paid_at and 'paid_at' not in vals:
+                    vals['paid_at'] = fields.Datetime.now()
+
+        # Clear paid_at if the order becomes unpaid.
+        elif vals.get('payment_status') == 'unpaid':
+            vals.setdefault('paid_at', False)
+
+        return super().write(vals)   
+    
     # =====================================================
     # CREATE + PAY ORDER
     # =====================================================
@@ -421,20 +437,16 @@ class POS(models.Model):
     def action_add_line(self):
         self.ensure_one()
 
-        action = {
+        return {
             "type": "ir.actions.act_window",
             "name": "Add a Line",
-            "res_model": "tindahan_pos.pos.line.wizard",
+            "res_model": "tindahan_pos.pos_line_wizard",
             "view_mode": "form",
             "target": "new",
             "context": {
                 "default_pos_id": self.id,
             },
         }
-
-        _logger.warning("ADD LINE ACTION: %s", action)
-
-        return action
 
 
 
