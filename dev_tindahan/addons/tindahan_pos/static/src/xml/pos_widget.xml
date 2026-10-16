@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+
 <templates xml:space="preserve">
 
     <t t-name="tindahan_pos.PosWidget" owl="1">
         <div class="tindahan-pos-widget">
 
-            <!-- Product search -->
+            <!-- Search -->
             <div class="pos-product-search mb-3">
                 <input
                     type="text"
@@ -15,25 +17,57 @@
                 />
             </div>
 
-            <!-- Loading indicator -->
+            <!-- Variant Category Tabs -->
+            <div
+                t-if="state.products &amp;&amp; state.products.length"
+                class="pos-category-tabs"
+            >
+                <button
+                    type="button"
+                    t-att-class="state.selectedVariant === 'all'
+                        ? 'pos-category-tab active'
+                        : 'pos-category-tab'"
+                    t-on-click="() => this.selectVariant('all')"
+                >
+                    All
+                </button>
+
+                <t
+                    t-foreach="state.variants || []"
+                    t-as="variant"
+                    t-key="variant"
+                >
+                    <button
+                        type="button"
+                        t-att-class="state.selectedVariant === variant
+                            ? 'pos-category-tab active'
+                            : 'pos-category-tab'"
+                        t-on-click="() => this.selectVariant(variant)"
+                    >
+                        <t t-esc="variant"/>
+                    </button>
+                </t>
+            </div>
+
+            <!-- Loading -->
             <div t-if="state.loading" class="text-center p-4">
                 Loading products...
             </div>
 
-            <!-- Empty state -->
+            <!-- Empty State -->
             <div
-                t-elif="!state.products || !state.products.length"
+                t-elif="!filteredProducts.length"
                 class="text-center p-4"
             >
                 No products found.
             </div>
 
-            <!-- Product grid -->
+            <!-- Product Grid -->
             <div t-else="" class="pos-product-container">
                 <div class="pos-product-grid">
 
                     <t
-                        t-foreach="state.products || []"
+                        t-foreach="filteredProducts"
                         t-as="product"
                         t-key="product.id"
                     >

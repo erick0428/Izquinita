@@ -12,7 +12,7 @@
         <field name="name">session.list</field>
         <field name="model">tindahan_pos.session</field>
         <field name="arch" type="xml">
-            <list>
+            <list create="0">
                 <field name="name"/>
                 <field name="closing_input"/>
                 <field name="difference"/>
@@ -32,7 +32,7 @@
         <field name="name">session.form</field>
         <field name="model">tindahan_pos.session</field>
         <field name="arch" type="xml">
-            <form>
+            <form create="0"> 
                 <sheet>
                     <group>
                         <field name="name" />
@@ -50,7 +50,7 @@
 					</group>
 					<field name="pos_ids">
 
-                        <list editable="bottom">
+                        <list create="0" delete="0" edit="0">
 
                             <field name="name"/>
                             <field name="customer_name"/>

@@ -4,7 +4,7 @@ import { Component, onMounted, onWillUnmount, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 // import { deserializeDateTime } from "@web/core/l10n/dates";
-console.log("🔥🔥 KITCHEN JS FILE LOADED 🔥🔥");
+// console.log("🔥🔥 KITCHEN JS FILE LOADED 🔥🔥");
 export class KitchenScreen extends Component {
 
     static template = "tindahan_pos.KitchenScreen";
@@ -230,4 +230,4 @@ registry
         "tindahan_pos.kitchen_screen",
         KitchenScreen
     );
-console.log("🔥🔥 KITCHEN ACTION REGISTERED 🔥🔥");
+// console.log("🔥🔥 KITCHEN ACTION REGISTERED 🔥🔥");

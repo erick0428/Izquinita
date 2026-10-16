@@ -1,3 +1,4 @@
+
 /** @odoo-module **/
 
 import { Component, onWillStart, useState } from "@odoo/owl";
@@ -23,6 +24,8 @@ export class PosWidget extends Component {
             total: 0,
             orderName: "",
             addingProductId: false,
+            variants: [],
+            selectedVariant: "all",
         });
 
         onWillStart(async () => {
@@ -42,6 +45,47 @@ export class PosWidget extends Component {
         });
     }
 
+    // =========================================
+    // FILTER PRODUCTS BY VARIANT AND SEARCH
+    // =========================================
+
+    get filteredProducts() {
+        const products = this.state.products || [];
+        const search = (this.state.search || "")
+            .toLowerCase()
+            .trim();
+
+        return products.filter((product) => {
+            const matchesVariant =
+                this.state.selectedVariant === "all" ||
+                (product.variant || "") ===
+                    this.state.selectedVariant;
+
+            const matchesSearch =
+                !search ||
+                (product.name || "")
+                    .toLowerCase()
+                    .includes(search) ||
+                (product.variant || "")
+                    .toLowerCase()
+                    .includes(search);
+
+            return matchesVariant && matchesSearch;
+        });
+    }
+
+    // =========================================
+    // SELECT VARIANT TAB
+    // =========================================
+
+    selectVariant(variant) {
+        this.state.selectedVariant = variant;
+    }
+
+    // =========================================
+    // LOAD PRODUCTS
+    // =========================================
+
     async loadProducts() {
         this.state.loading = true;
 
@@ -54,9 +98,34 @@ export class PosWidget extends Component {
             );
 
             this.state.products = data.products || [];
+
+            // Generate unique variant tabs.
+            this.state.variants = [
+                ...new Set(
+                    this.state.products
+                        .map((product) => product.variant)
+                        .filter((variant) => variant)
+                ),
+            ];
+
+            // Return to All if the selected variant
+            // is no longer present in the results.
+            if (
+                this.state.selectedVariant !== "all" &&
+                !this.state.variants.includes(
+                    this.state.selectedVariant
+                )
+            ) {
+                this.state.selectedVariant = "all";
+            }
         } catch (error) {
-            console.error("Failed to load POS products:", error);
+            console.error(
+                "Failed to load POS products:",
+                error
+            );
+
             this.state.products = [];
+            this.state.variants = [];
 
             this.notification.add(
                 "Unable to load products. Check the Odoo server logs.",
@@ -67,11 +136,18 @@ export class PosWidget extends Component {
         }
     }
 
+    // =========================================
+    // SEARCH PRODUCTS
+    // =========================================
+
     async onSearchInput(event) {
         this.state.search = event.target.value;
         await this.loadProducts();
     }
 
+    // =========================================
+    // ADD PRODUCT
+    // =========================================
 
     async addProduct(product) {
         if (!this.state.orderId) {
@@ -104,7 +180,10 @@ export class PosWidget extends Component {
                 { type: "success" }
             );
         } catch (error) {
-            console.error("Failed to add product:", error);
+            console.error(
+                "Failed to add product:",
+                error
+            );
 
             this.notification.add(
                 "Unable to add product to the existing order.",
@@ -114,7 +193,6 @@ export class PosWidget extends Component {
             this.state.addingProductId = false;
         }
     }
-
 }
 
 registry.category("actions").add(

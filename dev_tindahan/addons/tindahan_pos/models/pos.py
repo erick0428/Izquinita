@@ -17,6 +17,7 @@ class POS(models.Model):
         string='Reference',
         required=True,
         default='New',
+        readonly=True,
         copy=False
     )
 
@@ -37,7 +38,7 @@ class POS(models.Model):
     )
 
     total = fields.Float(
-        string='Total',
+        string='Total Amount',
         compute='_compute_total',
         store=True
     )
@@ -49,7 +50,9 @@ class POS(models.Model):
 
     change = fields.Float(
         string='Change',
-        default=0.0
+        default=0.0,
+        compute='_compute_change',
+        store=True,
     )
 
     # =====================================================
@@ -120,13 +123,16 @@ class POS(models.Model):
         copy=False
     )
 
-    # @api.depends('line_ids.subtotal')
-    # def _compute_total(self):
-    #     for record in self:
-    #         record.total = sum(
-    #             line.subtotal
-    #             for line in record.line_ids
-    #         )
+    @api.depends('cash', 'total')
+    def _compute_change(self):
+        for record in self:
+            if record.payment_type == 'cash':
+                record.change = max(
+                    record.cash - record.total,
+                    0.0
+                )
+            else:
+                record.change = 0.0
     @api.depends('line_ids.subtotal', 'delivery_fee', 'order_type')
     def _compute_total(self):
         for record in self:
@@ -235,87 +241,87 @@ class POS(models.Model):
     # CREATE + PAY ORDER
     # =====================================================
 
+   
+
     @api.model
     def create_pos_order(self, vals):
+        vals = vals.copy()
 
         payment_type = vals.get('payment_type', 'cash')
+        payment_status = vals.get('payment_status', 'paid')
+        cash = float(vals.get('cash', 0.0) or 0.0)
 
-        cash = float(vals.get('cash', 0.0))
-        change = float(vals.get('change', 0.0))
-
-        # Validate payment type
         if payment_type not in ('cash', 'gcash'):
             raise UserError("Invalid payment type.")
 
-        vals.pop('cash', None)
-        vals.pop('change', None)
+        if payment_status not in ('paid', 'unpaid'):
+            raise UserError("Invalid payment status.")
 
-        vals['payment_type'] = payment_type
-        vals["kitchen_status"] = "new"
+        if payment_status == 'paid' and payment_type == 'cash':
+            # Validate before creating the order.
+            # The final order total is validated after creation below.
+            pass
+
+        vals.pop('change', None)
+        vals.pop('paid_at', None)
+
+        vals.update({
+            'payment_type': payment_type,
+            'payment_status': 'unpaid',
+            'cash': 0.0,
+            'kitchen_status': 'new',
+        })
 
         order = self.create(vals)
 
-        # =================================================
-        # CASH PAYMENT
-        # =================================================
+        if payment_status == 'unpaid':
+            order.write({
+                'payment_status': 'unpaid',
+                'cash': 0.0,
+                'paid_at': False,
+            })
 
-        if payment_type == 'cash':
+            # # If change is NOT a computed field, set it to zero.
+            # if not self._fields['change'].compute:
+            #     order.write({'change': 0.0})
 
-            if cash < order.total:
-                raise UserError(
-                    f"Insufficient cash. "
-                    f"Total is ₱{order.total:.2f}."
-                )
+        else:
+            if payment_type == 'cash':
+                if cash < order.total:
+                    raise UserError(
+                        f"Insufficient cash. Total is ₱{order.total:.2f}."
+                    )
 
-            # Calculate change on the server
-            change = cash - order.total
+                change = cash - order.total
+            else:
+                cash = order.total
+                change = 0.0
 
-        # =================================================
-        # GCASH PAYMENT
-        # =================================================
+            payment_vals = {
+                'cash': cash,
+                'payment_type': payment_type,
+                'payment_status': 'paid',
+                'paid_at': fields.Datetime.now(),
+            }
 
-        elif payment_type == 'gcash':
+            if not self._fields['change'].compute:
+                payment_vals['change'] = change
 
-            # GCash payment is exactly the order total
-            cash = order.total
-            change = 0.0
-
-        # =================================================
-        # SAVE PAYMENT
-        # =================================================
-
-        order.write({
-            'cash': cash,
-            'change': change,
-            'payment_type': payment_type,
-            'payment_status': 'paid',
-            'paid_at': fields.Datetime.now(),
-            'kitchen_status': 'new',
-        })
+            order.write(payment_vals)
 
         return {
             'id': order.id,
             'name': order.name,
             'customer_name': order.customer_name,
             'total': order.total,
-
-            # Payment information
             'payment_type': order.payment_type,
             'cash': order.cash,
             'change': order.change,
-
             'payment_status': order.payment_status,
             'kitchen_status': order.kitchen_status,
-
-            'items': [
-                {
-                    'product_id': line.product_id.id,
-                    'name': line.product_description,
-                    'quantity': line.quantity,
-                }
-                for line in order.line_ids
-            ],
         }
+
+
 
 
     # =====================================================
@@ -387,10 +393,10 @@ class POS(models.Model):
 
         for order in self:
 
-            if order.payment_status != 'paid':
-                raise UserError(
-                    "Only paid orders can be prepared."
-                )
+            # if order.payment_status != 'paid':
+            #     raise UserError(
+            #         "Only paid orders can be prepared."
+            #     )
 
             order.kitchen_status = 'preparing'
 

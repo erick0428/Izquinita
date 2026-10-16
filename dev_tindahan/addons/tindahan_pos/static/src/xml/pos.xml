@@ -470,6 +470,13 @@
                         </button>
 
                         <button
+                            class="order-button"
+                            t-on-click="orderUnpaid"
+                        >
+                            Order
+                        </button>
+
+                        <button
                             class="pay-button"
                             t-on-click="openPaymentModal"
                         >

@@ -532,7 +532,7 @@ export class TindahanPOS extends Component {
     // SAVE ORDER
     // =========================================================
 
-    async saveOrder(cash, change) {
+    async saveOrder(cash, change, payment_status) {
 
         if (!this.state.cart.length) {
 
@@ -573,6 +573,7 @@ export class TindahanPOS extends Component {
                             delivery_fee: this.state.deliveryFee,
                             cash: cash,
                             change: change,
+                            payment_status: payment_status,
                             // ⭐ PAYMENT TYPE
                             payment_type: this.state.paymentType,
                             line_ids: lines,
@@ -718,6 +719,7 @@ export class TindahanPOS extends Component {
 
             change:
                 change,
+            payment_status: "paid"    
         };
 
         // =====================================================
@@ -727,7 +729,9 @@ export class TindahanPOS extends Component {
         const order =
             await this.saveOrder(
                 cash,
-                change
+                change,
+                "paid"
+                
             );
 
         if (!order) {
@@ -774,7 +778,127 @@ export class TindahanPOS extends Component {
     }
 
 
+    async orderUnpaid() {
 
+        if (
+            this.state.orderType === "delivery" &&
+            Number(this.state.deliveryFee) <= 0
+        ) {
+            alert(
+                "Please enter a delivery fee greater than zero."
+            );
+            return;
+        }
+
+        if (!this.state.session) {
+            alert("Please open POS first.");
+            return;
+        }
+
+        if (!this.state.cart.length) {
+            alert("No items in cart.");
+            return;
+        }
+
+        const total = Number(this.state.total) || 0;
+
+        let cash = 0;
+        let change = 0;
+
+        
+
+      
+
+        // =====================================================
+        // SAVE RECEIPT DATA
+        // =====================================================
+
+        this.state.receipt = {
+
+            order_name:
+                "POS-" + Date.now(),
+
+            customer_name:
+                this.state.customer_name ||
+                "Walk-in Customer",
+
+            date:
+                new Date().toLocaleString(),
+
+            lines:
+                this.state.cart.map(line => ({
+                    product_id: line.product_id,
+                    name: line.name,
+                    price: line.price,
+                    quantity: line.quantity,
+                })),
+
+            sub_total:
+                this.state.subTotal,
+
+            delivery_fee:
+                this.state.deliveryFee,
+
+            total:
+                total,
+
+ 
+
+            cash:
+                0,
+
+            change:
+                0,
+            payment_status: "unpaid"    
+        };
+
+        // =====================================================
+        // SAVE ORDER
+        // =====================================================
+
+        const order =
+            await this.saveOrder(
+                cash,
+                change,
+                "unpaid"
+            );
+
+        if (!order) {
+            return;
+        }
+
+        // Use actual Odoo order number
+        this.state.receipt.order_name =
+            order.name;
+
+        // =====================================================
+        // SHOW RECEIPT
+        // =====================================================
+
+        this.state.showReceipt = true;
+
+        await new Promise(resolve =>
+            setTimeout(resolve, 100)
+        );
+
+       
+
+        // =====================================================
+        // RESET PAYMENT
+        // =====================================================
+
+        this.state.cash = "";
+        this.state.cashInput = "";
+        this.state.change = 0;
+        this.state.paymentType = "cash";
+        this.state.customer_name = "";
+
+        // =====================================================
+        // CLEAR CART
+        // =====================================================
+
+        this.clearCart();
+    }
 
     async loadSession() {
         const sessions = await rpc("/web/dataset/call_kw", {

@@ -16,6 +16,7 @@ class POSSession(models.Model):
         string='Session Reference',
         default='New',
         required=True,
+        readonly=True,
         copy=False,
     )
 
